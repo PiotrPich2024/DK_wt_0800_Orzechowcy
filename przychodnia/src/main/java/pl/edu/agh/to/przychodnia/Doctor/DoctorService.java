@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DoctorService {
@@ -68,4 +69,8 @@ public class DoctorService {
     }
 
 
+    public Doctor findDoctorById(int Id) {
+        Optional<Doctor> temp = doctorRepository.findById(Id);
+        return temp.orElse(null);
+    }
 }
