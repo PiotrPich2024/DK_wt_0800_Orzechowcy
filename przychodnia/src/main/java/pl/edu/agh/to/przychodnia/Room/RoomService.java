@@ -2,7 +2,9 @@ package pl.edu.agh.to.przychodnia.Room;
 
 
 import org.springframework.stereotype.Service;
+import pl.edu.agh.to.przychodnia.Doctor.Doctor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -13,8 +15,12 @@ public class RoomService {
         this.roomRepository = roomRepository;
     }
 
-    public List<Room> getAllRooms() {
-        return roomRepository.findAll();
+    public List<String> getAllRooms() {
+        ArrayList<String> rooms = new ArrayList<>();
+        for(Room room: roomRepository.findAll()){
+            rooms.add(room.toString());
+        }
+        return rooms;
     }
 
     public Room addRoom(int roomNumber, String description) {
