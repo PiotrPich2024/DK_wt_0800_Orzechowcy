@@ -72,4 +72,6 @@ public class DoctorController {
     public void dropDoctors(){
         doctorService.dropDoctors();
     }
+
+
 }

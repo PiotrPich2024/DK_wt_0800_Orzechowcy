@@ -1,6 +1,9 @@
 package pl.edu.agh.to.przychodnia.Doctor;
 
 import jakarta.persistence.*;
+import pl.edu.agh.to.przychodnia.Schedule.Schedule;
+
+import java.util.List;
 
 
 @Entity
@@ -27,6 +30,10 @@ public class Doctor {
     @Column(nullable = false)
     private String phone;
 
+    @OneToMany
+    private List<Schedule> schedule;
+
+
     public Doctor(
             String firstName,
             String lastName,
@@ -49,10 +56,24 @@ public class Doctor {
 
     @Override
     public String toString() {
-        return "Doktor id: " + id + ", Imię: " + firstName + ", Nazwisko: " + lastName
-                + ", specjalizacja: " + specialty + ", pesel: " + pesel +
-                ", address: " + address + ", phone: " + phone;
+        String s = "Doktor ID: " + id + ", Imię: " + firstName + ", Nazwisko: " + lastName
+                + ", Specjalizacja: " + specialty + ", Pesel: " + pesel +
+                ", Adres: " + address + ", Telefon: " + phone;
+
+        s += ", Dyżury: ";
+        for (Schedule schedule : schedule) {
+            s += schedule + ", ";
+        }
+
+        return s;
     }
 
+    public List<Schedule> getSchedule(){
+        return schedule;
+    }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 
 }

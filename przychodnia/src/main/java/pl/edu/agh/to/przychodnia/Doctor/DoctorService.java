@@ -1,6 +1,7 @@
 package pl.edu.agh.to.przychodnia.Doctor;
 
 import org.springframework.stereotype.Service;
+import pl.edu.agh.to.przychodnia.Schedule.Schedule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ public class DoctorService {
         return doctors;
     }
 
+    // TODO Proszę pamiętać, że nie można usunąć lekarza, ani gabinetu, który aktualnie jest przypisany do gabinetu, lub lekarza. Powinien wyświetlić się odpowiedni komunikat (obsłużyć wyjątek)
     public Boolean deleteDoctor(int id){
         if(doctorRepository.existsById(id)){
             doctorRepository.deleteById(id);
@@ -72,5 +74,10 @@ public class DoctorService {
     public Doctor findDoctorById(int Id) {
         Optional<Doctor> temp = doctorRepository.findById(Id);
         return temp.orElse(null);
+    }
+
+    public List<Schedule> findDoctorsScheduleById(int Id) {
+        List<Schedule> schedules = doctorRepository.findById(Id).get().getSchedule();
+        return schedules;
     }
 }
