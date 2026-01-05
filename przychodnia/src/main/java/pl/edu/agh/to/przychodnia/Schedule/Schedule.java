@@ -45,7 +45,7 @@ public class Schedule {
 
     @Override
     public String toString() {
-        return doctor.getFullName() + " " + room.getRoomNumber() + " " + startdate.toString() + " " + enddate.toString();
+        return id + " " + doctor.getFullName() + " " + room.getRoomNumber() + " " + startdate.toString() + " " + enddate.toString();
     }
 
 }

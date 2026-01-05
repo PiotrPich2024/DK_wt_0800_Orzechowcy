@@ -28,11 +28,11 @@ public class AppointmentController {
     }
 
     @GetMapping
-    public List<Appointment> getAppointments() {
+    public List<String> getAppointments() {
         return appointmentService.getAllAppointments();
     }
 
-    @PostMapping
+    @PostMapping(value = "/add")
     public Appointment addAppointment(@RequestBody Map<String, String> map) {
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date startDate;
@@ -51,8 +51,8 @@ public class AppointmentController {
         }
 
         Appointment new_appointment = new Appointment(
-                patientService.findPatientById(Integer.parseInt(map.get("patient_id"))),
-                scheduleService.findScheduleById(Integer.parseInt(map.get("schedule_id"))),
+                patientService.findPatientById(Integer.parseInt(map.get("patientId"))),
+                scheduleService.findScheduleById(Integer.parseInt(map.get("scheduleId"))),
                 startDate,
                 endDate
         );

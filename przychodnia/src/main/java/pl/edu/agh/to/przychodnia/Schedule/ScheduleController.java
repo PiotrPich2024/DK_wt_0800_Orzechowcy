@@ -26,11 +26,11 @@ public class ScheduleController {
     }
 
     @GetMapping()
-    public List<Schedule> getSchedules() {
+    public List<String> getSchedules() {
         return scheduleService.getAllSchedules();
     }
 
-    @PostMapping
+    @PostMapping(value = "/add")
     public Schedule addSchedule(@RequestBody Map<String, String> map) {
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date startDate;
@@ -47,8 +47,6 @@ public class ScheduleController {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-
-
 
         return scheduleService.addSchedule(
                 doctorService.findDoctorById(Integer.parseInt(map.get("doctorId"))),

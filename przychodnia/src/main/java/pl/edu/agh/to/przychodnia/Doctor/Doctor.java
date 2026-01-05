@@ -64,8 +64,9 @@ public class Doctor {
         for (Schedule schedule : schedule) {
             s += schedule + ", ";
         }
+        String result = s.substring(0, s.length() - 2);
 
-        return s;
+        return result;
     }
 
     public List<Schedule> getSchedule(){

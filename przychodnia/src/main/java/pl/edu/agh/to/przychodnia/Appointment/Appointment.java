@@ -42,4 +42,11 @@ public class Appointment {
     public Date getAppointmentStart() {
         return appointmentStart;
     }
+
+    @Override
+    public String toString() {
+        return "ID wizyty: " + id + ", Dyżur: " + schedule + "," +
+                " Początek wizyty: " + appointmentStart + ", Koniec wizyty: " + appointmentEnd;
+
+    }
 }

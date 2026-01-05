@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import pl.edu.agh.to.przychodnia.Doctor.Doctor;
 import pl.edu.agh.to.przychodnia.Room.Room;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,11 +18,16 @@ public class ScheduleService {
     }
 
     public Schedule addSchedule(Doctor doctor, Room room, Date startDate, Date endDate) {
-        return scheduleRepository.save(new Schedule(doctor, room, startDate, endDate));
+        Schedule schedule = new Schedule(doctor, room, startDate, endDate);
+        return scheduleRepository.save(schedule);
     }
 
-    public List<Schedule> getAllSchedules() {
-        return scheduleRepository.findAll();
+    public List<String> getAllSchedules() {
+        ArrayList<String> schedules = new ArrayList<>();
+        for(Schedule schedule : scheduleRepository.findAll()){
+            schedules.add(schedule.toString());
+        }
+        return schedules;
     }
 
     public Boolean deleteSchedule(int id) {

@@ -1,7 +1,9 @@
 package pl.edu.agh.to.przychodnia.Appointment;
 
 import org.springframework.stereotype.Service;
+import pl.edu.agh.to.przychodnia.Doctor.Doctor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,8 +18,13 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
 
-    public List<Appointment> getAllAppointments() {
-        return appointmentRepository.findAll();
+    public List<String> getAllAppointments() {
+        ArrayList<String> appointments = new ArrayList<>();
+        for(Appointment appointment : appointmentRepository.findAll()){
+            appointments.add(appointment.toString());
+        }
+        return appointments;
+
     }
 
     public Boolean deleteAppointment(int id) {
