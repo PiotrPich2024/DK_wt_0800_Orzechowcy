@@ -30,8 +30,8 @@ public class Doctor {
     @Column(nullable = false)
     private String phone;
 
-    @OneToMany
-    private List<Schedule> schedule;
+    @OneToMany(mappedBy = "doctor", fetch = FetchType.LAZY)
+    private List<Schedule> schedules;
 
 
     public Doctor(
@@ -61,20 +61,23 @@ public class Doctor {
                 ", Adres: " + address + ", Telefon: " + phone;
 
         s += ", Dyżury: ";
-        for (Schedule schedule : schedule) {
+        for (Schedule schedule : schedules) {
             s += schedule + ", ";
         }
-        String result = s.substring(0, s.length() - 2);
+        // String s = s.substring(0, s.length() - 2);
 
-        return result;
+        return s;
     }
 
     public List<Schedule> getSchedule(){
-        return schedule;
+        return schedules;
     }
 
     public String getFullName() {
         return firstName + " " + lastName;
     }
 
+    public int getId() {
+        return id;
+    }
 }

@@ -2,6 +2,7 @@ package pl.edu.agh.to.przychodnia.Doctor;
 
 import org.springframework.stereotype.Service;
 import pl.edu.agh.to.przychodnia.Schedule.Schedule;
+import pl.edu.agh.to.przychodnia.Schedule.ScheduleRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +11,11 @@ import java.util.Optional;
 @Service
 public class DoctorService {
     private final DoctorRepository doctorRepository;
+    private final ScheduleRepository scheduleRepository;
 
-    public DoctorService(DoctorRepository doctorRepository) {
+    public DoctorService(DoctorRepository doctorRepository, ScheduleRepository scheduleRepository) {
         this.doctorRepository = doctorRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
     public List<String> listDoctors(){
@@ -23,12 +26,16 @@ public class DoctorService {
         return doctors;
     }
 
-    // TODO Proszę pamiętać, że nie można usunąć lekarza, ani gabinetu, który aktualnie jest przypisany do gabinetu, lub lekarza. Powinien wyświetlić się odpowiedni komunikat (obsłużyć wyjątek)
-    public Boolean deleteDoctor(int id){
-        if(doctorRepository.existsById(id)){
-            doctorRepository.deleteById(id);
-            return true;
+    public Boolean deleteDoctor(int doctorId){
+        if(doctorRepository.existsById(doctorId)){
+            if(showDoctorSchedules(doctorId).isEmpty()) {
+                doctorRepository.deleteById(doctorId);
+                return true;
+            }
+            System.out.println("Lista dyżurów dla tego doktora nie jest pusta.");
+            return false;
         }
+        System.out.println("Nie znaleziono doktora.");
         return false;
     }
 
@@ -76,8 +83,18 @@ public class DoctorService {
         return temp.orElse(null);
     }
 
-    public List<Schedule> findDoctorsScheduleById(int Id) {
-        List<Schedule> schedules = doctorRepository.findById(Id).get().getSchedule();
+//    public List<Schedule> findDoctorsScheduleById(int Id) {
+//        List<Schedule> schedules = doctorRepository.findById(Id).get().getSchedule();
+//        return schedules;
+//    }
+
+    public List<String> showDoctorSchedules(int doctorId) {
+        ArrayList<String> schedules = new ArrayList<>();
+        for(Schedule schedule: scheduleRepository.findAll()){
+            if (schedule.getDoctorId() == doctorId){
+                schedules.add(schedule.toString());
+            }
+        }
         return schedules;
     }
 }

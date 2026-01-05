@@ -33,8 +33,13 @@ public class RoomController {
     }
 
     @GetMapping(value = "/delete/{id}")
-    public void deleteRoom(@PathVariable int id) {
-        roomService.deleteRoom(id);
+    public Boolean deleteRoom(@PathVariable int id) {
+        return roomService.deleteRoom(id);
+    }
+
+    @GetMapping(value = "/{id}/schedules")
+    public List<String> showRoomSchedules(@PathVariable int id) {
+        return roomService.showRoomSchedules(id);
     }
 
 

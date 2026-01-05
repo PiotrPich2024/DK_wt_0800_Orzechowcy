@@ -3,7 +3,11 @@ package pl.edu.agh.to.przychodnia.Room;
 
 import org.springframework.stereotype.Service;
 import pl.edu.agh.to.przychodnia.Doctor.Doctor;
+import pl.edu.agh.to.przychodnia.Doctor.DoctorRepository;
+import pl.edu.agh.to.przychodnia.Schedule.Schedule;
+import pl.edu.agh.to.przychodnia.Schedule.ScheduleRepository;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,8 +15,10 @@ import java.util.List;
 public class RoomService {
 
     private final RoomRepository roomRepository;
-    public RoomService(RoomRepository roomRepository) {
+    private final ScheduleRepository scheduleRepository;
+    public RoomService(RoomRepository roomRepository, ScheduleRepository scheduleRepository) {
         this.roomRepository = roomRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
     public List<String> getAllRooms() {
@@ -29,20 +35,33 @@ public class RoomService {
     }
 
 
-    // TODO Proszę pamiętać, że nie można usunąć lekarza, ani gabinetu, który aktualnie jest przypisany do gabinetu, lub lekarza. Powinien wyświetlić się odpowiedni komunikat (obsłużyć wyjątek)
     public Boolean deleteRoom(int roomId) {
         if(roomRepository.existsById(roomId)){
-            roomRepository.deleteById(roomId);
-            return true;
+            if(showRoomSchedules(roomId).isEmpty()) {
+                roomRepository.deleteById(roomId);
+                return true;
+            }
+            System.out.println("Lista dyżurów dla tego gabinetu nie jest pusta.");
+            return false;
         }
+        System.out.println("Nie znaleziono gabinetu.");
         return false;
     }
 
-    // TODO Dodac dyżury
+
     public Room findRoomById(int roomId) {
         return roomRepository.findById(roomId).orElse(null);
     }
 
+    public List<String> showRoomSchedules(int roomId) {
+        ArrayList<String> schedules = new ArrayList<>();
+        for(Schedule schedule: scheduleRepository.findAll()){
+            if (schedule.getRoomId() == roomId){
+                schedules.add(schedule.toString());
+            }
+        }
+        return schedules;
+    }
 
 
 }

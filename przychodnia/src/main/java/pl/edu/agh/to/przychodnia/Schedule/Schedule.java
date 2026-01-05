@@ -48,4 +48,11 @@ public class Schedule {
         return id + " " + doctor.getFullName() + " " + room.getRoomNumber() + " " + startdate.toString() + " " + enddate.toString();
     }
 
+    public int getRoomId() {
+        return room.getId();
+    }
+
+    public int getDoctorId() {
+        return doctor.getId();
+    }
 }

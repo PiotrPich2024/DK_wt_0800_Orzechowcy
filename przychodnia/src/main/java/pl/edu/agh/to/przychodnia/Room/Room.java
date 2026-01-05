@@ -41,4 +41,8 @@ public class Room {
     public int getRoomNumber() {
         return roomNumber;
     }
+
+    public int getId() {
+        return id;
+    }
 }
