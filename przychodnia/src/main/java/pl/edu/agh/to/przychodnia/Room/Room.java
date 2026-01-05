@@ -32,6 +32,12 @@ public class Room {
 
     }
 
+    @Override
+    public String toString() {
+        String s = "ID gabinetu: " + id + ", Numer gabinetu: " + roomNumber + ", Opis: " +  roomDescription;
+        return s;
+    }
+
     public int getRoomNumber() {
         return roomNumber;
     }

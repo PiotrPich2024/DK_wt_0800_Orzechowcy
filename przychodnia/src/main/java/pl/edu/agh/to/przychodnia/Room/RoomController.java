@@ -15,7 +15,7 @@ public class RoomController {
     }
 
     @GetMapping
-    public List<Room> getRooms() {
+    public List<String> getRooms() {
         return roomService.getAllRooms();
     }
 
@@ -24,7 +24,7 @@ public class RoomController {
         return roomService.findRoomById(id);
     }
 
-    @PostMapping
+    @PostMapping(value ="/add")
     public Room addRoom(@RequestBody Map<String, String> map) {
         return roomService.addRoom(
                 Integer.parseInt(map.get("roomNumber")),
