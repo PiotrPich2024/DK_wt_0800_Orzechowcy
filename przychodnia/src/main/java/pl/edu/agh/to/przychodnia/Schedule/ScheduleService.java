@@ -24,5 +24,17 @@ public class ScheduleService {
         return scheduleRepository.findAll();
     }
 
+    public Boolean deleteSchedule(int id) {
+        if(scheduleRepository.existsById(id)) {
+            scheduleRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    public Schedule findScheduleById(int id) {
+        return scheduleRepository.findById(id).orElse(null);
+    }
+
 
 }

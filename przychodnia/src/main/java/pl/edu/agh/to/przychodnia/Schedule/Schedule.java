@@ -1,11 +1,13 @@
 package pl.edu.agh.to.przychodnia.Schedule;
 
 import jakarta.persistence.*;
+import pl.edu.agh.to.przychodnia.Appointment.Appointment;
 import pl.edu.agh.to.przychodnia.Doctor.Doctor;
 import pl.edu.agh.to.przychodnia.Room.Room;
 
 import javax.print.Doc;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class Schedule {
@@ -26,6 +28,9 @@ public class Schedule {
 
     @Column
     private Date enddate;
+
+    @OneToMany
+    private List<Appointment> appointments;
 
     public Schedule(Doctor doctor, Room room, Date startdate, Date enddate) {
         this.doctor = doctor;

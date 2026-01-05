@@ -58,5 +58,12 @@ public class ScheduleController {
         );
     }
 
+    @GetMapping(value = "delete/{id}")
+    public Boolean deleteSchedule(@PathVariable int id) {
+        return scheduleService.deleteSchedule(id);
+
+
+    }
+
 
 }
