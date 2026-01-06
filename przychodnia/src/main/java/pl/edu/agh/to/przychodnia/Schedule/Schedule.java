@@ -55,4 +55,12 @@ public class Schedule {
     public int getDoctorId() {
         return doctor.getId();
     }
+
+    public Date getStartdate() {
+        return startdate;
+    }
+
+    public Date getEnddate() {
+        return enddate;
+    }
 }

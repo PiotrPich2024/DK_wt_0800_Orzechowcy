@@ -80,4 +80,8 @@ public class Doctor {
     public int getId() {
         return id;
     }
+
+    public String getSpecialization() {
+        return  specialty;
+    }
 }

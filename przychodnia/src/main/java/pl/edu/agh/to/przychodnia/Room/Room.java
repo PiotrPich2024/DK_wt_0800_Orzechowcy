@@ -45,4 +45,8 @@ public class Room {
     public int getId() {
         return id;
     }
+
+    public List<Schedule> getSchedule(){
+        return schedule;
+    }
 }
