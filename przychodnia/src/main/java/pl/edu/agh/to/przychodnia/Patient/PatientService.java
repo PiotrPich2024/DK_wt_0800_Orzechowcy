@@ -23,7 +23,7 @@ public class PatientService {
         return patients;
     }
 
-    // TODO Proszę pamiętać, że nie można usunąć lekarza, ani gabinetu, który aktualnie jest przypisany do gabinetu, lub lekarza. Powinien wyświetlić się odpowiedni komunikat (obsłużyć wyjątek)
+
     public Boolean deletePatient(int id){
         if(patientRepository.existsById(id)){
             patientRepository.deleteById(id);
