@@ -61,6 +61,10 @@ public class Doctor {
                 ", Adres: " + address + ", Telefon: " + phone;
 
         s += ", Dyżury: ";
+        if (schedules == null || schedules.isEmpty()) {
+            s += "brak";
+            return s;
+        }
         for (Schedule schedule : schedules) {
             s += schedule + ", ";
         }
