@@ -63,4 +63,12 @@ public class Schedule {
     public Date getEnddate() {
         return enddate;
     }
+
+    public Doctor getDoctor() {
+        return doctor;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
 }
