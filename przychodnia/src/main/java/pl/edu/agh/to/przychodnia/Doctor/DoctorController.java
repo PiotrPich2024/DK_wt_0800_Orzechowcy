@@ -56,7 +56,7 @@ public class DoctorController {
         return doctorService.addDoctor(
                 map.get("firstName"),
                 map.get("lastName"),
-                map.get("specialty"),
+                Specialization.fromString(map.get("specialty")),
                 map.get("pesel"),
                 map.get("address"),
                 map.get("phone")
@@ -72,4 +72,6 @@ public class DoctorController {
     public void dropDoctors(){
         doctorService.dropDoctors();
     }
+
+
 }
