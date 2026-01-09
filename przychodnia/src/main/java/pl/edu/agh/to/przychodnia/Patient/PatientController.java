@@ -29,7 +29,7 @@ public class PatientController {
 
 
     @GetMapping(value = "/delete/{id}")
-    public Boolean DeletePatient(@PathVariable int id){
+    public Boolean deletePatient(@PathVariable int id){
         return patientService.deletePatient(id);
     }
 

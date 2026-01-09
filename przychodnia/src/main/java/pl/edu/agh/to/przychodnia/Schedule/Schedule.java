@@ -52,7 +52,7 @@ public class Schedule {
         return room.getId();
     }
 
-    public int getDoctorId() {
+        public int getDoctorId() {
         return doctor.getId();
     }
 

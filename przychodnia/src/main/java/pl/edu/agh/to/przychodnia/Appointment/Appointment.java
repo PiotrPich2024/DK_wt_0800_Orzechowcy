@@ -46,7 +46,7 @@ public class Appointment {
     @Override
     public String toString() {
         return "ID wizyty: " + id + ", Dyżur: " + schedule + "," +
-                " Początek wizyty: " + appointmentStart + ", Koniec wizyty: " + appointmentEnd;
+                " Początek wizyty: " + appointmentStart + ", Koniec wizyty: " + appointmentEnd  ;
 
     }
 }
