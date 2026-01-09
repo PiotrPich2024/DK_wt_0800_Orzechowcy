@@ -19,7 +19,7 @@ public class Doctor {
     private String lastName;
 
     @Column(nullable = false)
-    private String specialty;
+    private Specialization specialty;
 
     @Column(nullable = false)
     private String pesel;
@@ -37,7 +37,7 @@ public class Doctor {
     public Doctor(
             String firstName,
             String lastName,
-            String specialty,
+            Specialization specialty,
             String pesel,
             String address,
             String phone
@@ -85,7 +85,7 @@ public class Doctor {
         return id;
     }
 
-    public String getSpecialization() {
+    public Specialization getSpecialization() {
         return  specialty;
     }
 }

@@ -5,6 +5,7 @@ import org.mockito.Mock;
 import pl.edu.agh.to.przychodnia.Doctor.Doctor;
 import pl.edu.agh.to.przychodnia.Doctor.DoctorRepository;
 import pl.edu.agh.to.przychodnia.Doctor.DoctorService;
+import pl.edu.agh.to.przychodnia.Doctor.Specialization;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.edu.agh.to.przychodnia.Schedule.Schedule;
@@ -31,10 +32,10 @@ public class DoctorServiceTests {
     @Test
     void listDoctorsShouldReturnFormattedStrings() {
 
-        Doctor doctor1 = new Doctor("Jan", "Kowalski", "Kardiolog",
+        Doctor doctor1 = new Doctor("Jan", "Kowalski", Specialization.fromString("Kardiolog"),
                 "123", "Adres", "111");
 
-        Doctor doctor2 = new Doctor("Anna", "Nowak", "Neurolog",
+        Doctor doctor2 = new Doctor("Anna", "Nowak", Specialization.fromString("Neurolog"),
                 "456", "Adres2", "222");
 
         when(doctorRepository.findAll())
@@ -53,13 +54,13 @@ public class DoctorServiceTests {
     void addDoctorShouldSaveAndReturnDoctor() {
 
         Doctor savedDoctor = new Doctor("Jan", "Kowalski",
-                "Pediatra", "111", "Adres", "123");
+                Specialization.fromString("Pediatra"), "111", "Adres", "123");
 
         when(doctorRepository.save(any(Doctor.class)))
                 .thenReturn(savedDoctor);
 
         Doctor result = doctorService.addDoctor(
-                "Jan", "Kowalski", "Pediatra",
+                "Jan", "Kowalski", Specialization.fromString("Pediatra"),
                 "111", "Adres", "123"
         );
 
@@ -125,7 +126,7 @@ public class DoctorServiceTests {
     void findDoctorByIdShouldReturnDoctor() {
 
         Doctor doctor = new Doctor("Monika", "Lis",
-                "Dermatolog", "999", "Adres", "333");
+                Specialization.fromString("Dermatolog"), "999", "Adres", "333");
 
         when(doctorRepository.findById(5))
                 .thenReturn(Optional.of(doctor));
@@ -162,3 +163,4 @@ public class DoctorServiceTests {
 
 
 }
+

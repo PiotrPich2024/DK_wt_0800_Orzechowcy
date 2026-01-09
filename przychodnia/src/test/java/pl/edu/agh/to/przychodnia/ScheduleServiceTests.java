@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.edu.agh.to.przychodnia.Doctor.Doctor;
 import pl.edu.agh.to.przychodnia.Doctor.DoctorRepository;
+import pl.edu.agh.to.przychodnia.Doctor.Specialization;
 import pl.edu.agh.to.przychodnia.Room.Room;
 import pl.edu.agh.to.przychodnia.Room.RoomRepository;
 import pl.edu.agh.to.przychodnia.Schedule.Schedule;
@@ -110,7 +111,7 @@ public class ScheduleServiceTests {
     @Test
     void showAvailableDoctorsShouldReturnOnlyMatchingSpecializationAndAvailable() {
         Doctor doctor = mock(Doctor.class);
-        when(doctor.getSpecialization()).thenReturn("Kardiolog");
+        when(doctor.getSpecialization()).thenReturn(Specialization.fromString("Kardiolog"));
         when(doctor.toString()).thenReturn("Dr. Jan");
 
         Schedule s = mock(Schedule.class);
