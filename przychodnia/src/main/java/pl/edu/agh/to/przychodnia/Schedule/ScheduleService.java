@@ -52,12 +52,12 @@ public class ScheduleService {
         List<String> doctors = new ArrayList<>();
 //        List<String> schedules = getAllSchedules();
         for (Doctor doctor : doctorRepository.findAll()) {
-            if (specialization.equals(doctor.getSpecialization())) {
+            if (specialization.equals(doctor.getSpecialization().toString())) {
                 Boolean flag = true;
                 for (Schedule schedule : doctor.getSchedule()) {
                     Date scheduleStartDate = schedule.getStartdate();
                     Date scheduleEndDate = schedule.getEnddate();
-                    if (!(scheduleStartDate.compareTo(startDate) <= 0 && startDate.compareTo(scheduleEndDate) < 0 &&  scheduleEndDate.compareTo(endDate) < 0 && endDate.compareTo(scheduleEndDate) <= 0)) {
+                    if (startDate.compareTo(scheduleEndDate) < 0 && endDate.compareTo(scheduleStartDate) > 0) {
                         flag = false;
                         break;
                     }
@@ -78,13 +78,13 @@ public class ScheduleService {
             for (Schedule schedule : room.getSchedule()) {
                 Date scheduleStartDate = schedule.getStartdate();
                 Date scheduleEndDate = schedule.getEnddate();
-                if (!(scheduleStartDate.compareTo(startDate) <= 0 && startDate.compareTo(scheduleEndDate) < 0 &&  scheduleEndDate.compareTo(endDate) < 0 && endDate.compareTo(scheduleEndDate) <= 0)) {
+                if (startDate.compareTo(scheduleEndDate) < 0 && endDate.compareTo(scheduleStartDate) > 0) {
                     flag = false;
                     break;
                 }
             }
             if (flag) {
-                rooms.add(((Integer)room.getRoomNumber()).toString());
+                rooms.add(room.toString());
             }
         }
 

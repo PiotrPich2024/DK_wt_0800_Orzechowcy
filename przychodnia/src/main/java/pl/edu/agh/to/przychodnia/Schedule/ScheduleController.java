@@ -62,7 +62,7 @@ public class ScheduleController {
         return scheduleService.deleteSchedule(id);
     }
 
-    @GetMapping(value = "/available")
+    @PostMapping(value = "/available")
     public List<String> showAvailable(@RequestBody Map<String, String> map) {
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date startDate;
