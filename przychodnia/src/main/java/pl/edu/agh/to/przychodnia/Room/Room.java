@@ -46,6 +46,10 @@ public class Room {
         return id;
     }
 
+    public String getRoomDescription() {
+        return roomDescription;
+    }
+
     public List<Schedule> getSchedule(){
         return schedule;
     }

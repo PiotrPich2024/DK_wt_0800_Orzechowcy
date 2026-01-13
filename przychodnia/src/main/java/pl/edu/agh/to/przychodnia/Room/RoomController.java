@@ -3,7 +3,6 @@ package pl.edu.agh.to.przychodnia.Room;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RequestMapping(path = "room")
 @RestController
@@ -15,20 +14,19 @@ public class RoomController {
     }
 
     @GetMapping
-    public List<String> getRooms() {
+    public List<RoomDTO> getRooms() {
         return roomService.getAllRooms();
     }
 
     @GetMapping("/{id}")
-    public Room getRoom(@PathVariable int id) {
-        return roomService.findRoomById(id);
+    public RoomDTO getRoom(@PathVariable int id) {
+        return roomService.findRoomDTOById(id);
     }
 
     @PostMapping(value ="/add")
-    public Room addRoom(@RequestBody Map<String, String> map) {
+    public RoomDTO addRoom(@RequestBody RoomDTO dto) {
         return roomService.addRoom(
-                Integer.parseInt(map.get("roomNumber")),
-                map.get("description")
+                dto
         );
     }
 
@@ -38,7 +36,7 @@ public class RoomController {
     }
 
     @GetMapping(value = "/{id}/schedules")
-    public List<String> showRoomSchedules(@PathVariable int id) {
+    public List<RoomsScheduleDTO> showRoomSchedules(@PathVariable int id) {
         return roomService.showRoomSchedules(id);
     }
 

@@ -2,12 +2,9 @@ package pl.edu.agh.to.przychodnia.Room;
 
 
 import org.springframework.stereotype.Service;
-import pl.edu.agh.to.przychodnia.Doctor.Doctor;
-import pl.edu.agh.to.przychodnia.Doctor.DoctorRepository;
 import pl.edu.agh.to.przychodnia.Schedule.Schedule;
 import pl.edu.agh.to.przychodnia.Schedule.ScheduleRepository;
 
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,17 +18,24 @@ public class RoomService {
         this.scheduleRepository = scheduleRepository;
     }
 
-    public List<String> getAllRooms() {
-        ArrayList<String> rooms = new ArrayList<>();
-        for(Room room: roomRepository.findAll()){
-            rooms.add(room.toString());
+    public RoomDTO mapToDTO(Room room) {
+        return new RoomDTO(
+                room.getRoomNumber(),
+                room.getRoomDescription()
+        );
+    }
+
+    public List<RoomDTO> getAllRooms() {
+        List<RoomDTO> rooms = new ArrayList<>();
+        for (Room room : roomRepository.findAll()) {
+            rooms.add(mapToDTO(room));
         }
         return rooms;
     }
 
-    public Room addRoom(int roomNumber, String description) {
-        Room room = new Room(roomNumber, description);
-        return roomRepository.save(room);
+    public RoomDTO addRoom(RoomDTO dto) {
+        Room room = new Room(dto.getRoomNumber(), dto.getRoomDescription());
+        return mapToDTO(roomRepository.save(room));
     }
 
 
@@ -53,11 +57,19 @@ public class RoomService {
         return roomRepository.findById(roomId).orElse(null);
     }
 
-    public List<String> showRoomSchedules(int roomId) {
-        ArrayList<String> schedules = new ArrayList<>();
+    public RoomDTO findRoomDTOById(int roomId) {
+        return mapToDTO(findRoomById(roomId));
+    }
+
+    public List<RoomsScheduleDTO> showRoomSchedules(int roomId) {
+        List<RoomsScheduleDTO> schedules = new ArrayList<>();
         for(Schedule schedule: scheduleRepository.findAll()){
             if (schedule.getRoomId() == roomId){
-                schedules.add(schedule.toString());
+                schedules.add(new RoomsScheduleDTO(
+                        schedule.getStartdate(),
+                        schedule.getEnddate(),
+                        schedule.getDoctor().getFullName()
+                ));
             }
         }
         return schedules;

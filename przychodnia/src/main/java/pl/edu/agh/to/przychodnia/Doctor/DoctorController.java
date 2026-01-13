@@ -25,8 +25,8 @@ public class DoctorController {
     }
 
     @GetMapping(value = "/{id}")
-    public String getDoctor(@PathVariable int id){
-        return doctorService.findDoctorById(id).toString();
+    public GetDoctorDTO getDoctor(@PathVariable int id){
+        return doctorService.findDoctorDTOById(id);
 
     }
 
@@ -66,6 +66,11 @@ public class DoctorController {
     @GetMapping(value = "/drop")
     public void dropDoctors(){
         doctorService.dropDoctors();
+    }
+
+    @GetMapping(value = "/{id}/schedules")
+    public List<GetDoctorScheduleDTO> schowDoctorSchedules(@PathVariable int id){
+        return doctorService.showDoctorSchedules(id);
     }
 
 

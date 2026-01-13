@@ -1,6 +1,7 @@
 package pl.edu.agh.to.przychodnia.Doctor;
 
 import org.springframework.stereotype.Service;
+import pl.edu.agh.to.przychodnia.Schedule.GetScheduleDTO;
 import pl.edu.agh.to.przychodnia.Schedule.Schedule;
 import pl.edu.agh.to.przychodnia.Schedule.ScheduleRepository;
 
@@ -102,7 +103,21 @@ public class DoctorService {
     }
 
 
-    public Doctor findDoctorById(int Id) {
+    public GetDoctorDTO findDoctorDTOById(int Id) {
+        Optional<Doctor> temp = doctorRepository.findById(Id);
+        GetDoctorDTO dto = new GetDoctorDTO(
+                temp.get().getId(),
+                temp.get().getFirstName(),
+                temp.get().getLastName(),
+                temp.get().getSpecialization().toString(),
+                temp.get().getPhone()
+        );
+        Optional<GetDoctorDTO> optional_dto = Optional.of(dto);
+        return optional_dto.orElse(null);
+    }
+
+    // metoda aby móc w schedule mieć doktora
+    public Doctor findDoctorByID(int Id){
         Optional<Doctor> temp = doctorRepository.findById(Id);
         return temp.orElse(null);
     }
@@ -112,13 +127,17 @@ public class DoctorService {
 //        return schedules;
 //    }
 
-    public List<String> showDoctorSchedules(int doctorId) {
-        ArrayList<String> schedules = new ArrayList<>();
+    public List<GetDoctorScheduleDTO> showDoctorSchedules(int doctorId) {
+        List<GetDoctorScheduleDTO> doctorSchedules = new ArrayList<>();
         for(Schedule schedule: scheduleRepository.findAll()){
             if (schedule.getDoctorId() == doctorId){
-                schedules.add(schedule.toString());
+                doctorSchedules.add(new GetDoctorScheduleDTO(
+                        schedule.getStartdate(),
+                        schedule.getEnddate(),
+                        schedule.getRoom().getRoomNumber()
+                ));
             }
         }
-        return schedules;
+        return doctorSchedules;
     }
 }

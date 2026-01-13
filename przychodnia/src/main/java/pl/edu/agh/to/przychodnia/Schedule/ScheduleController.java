@@ -27,33 +27,14 @@ public class ScheduleController {
     }
 
     @GetMapping()
-    public List<String> getSchedules() {
+    public List<GetScheduleDTO> getSchedules() {
         return scheduleService.getAllSchedules();
     }
 
     @PostMapping(value = "/add")
-    public Schedule addSchedule(@RequestBody Map<String, String> map) {
-        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date startDate;
-        Date endDate;
-
-        try {
-            startDate = parser.parse(map.get("startDate"));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            endDate = parser.parse(map.get("endDate"));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-
+    public GetScheduleDTO addSchedule(@RequestBody CreateScheduleDTO dto) {
         return scheduleService.addSchedule(
-                doctorService.findDoctorById(Integer.parseInt(map.get("doctorId"))),
-                roomService.findRoomById(Integer.parseInt(map.get("roomId"))),
-                startDate,
-                endDate
+                dto
         );
     }
 
@@ -62,33 +43,9 @@ public class ScheduleController {
         return scheduleService.deleteSchedule(id);
     }
 
-    @GetMapping(value = "/available")
-    public List<String> showAvailable(@RequestBody Map<String, String> map) {
-        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date startDate;
-        Date endDate;
-
-        try {
-            startDate = parser.parse(map.get("startDate"));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            endDate = parser.parse(map.get("endDate"));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-
-        String specialization = map.get("specialization");
-
-        List<String> result = new ArrayList<>();
-        List<String> availableRooms = scheduleService.showAvailableRooms(startDate, endDate);
-        List<String> availableDoctors = scheduleService.showAvailableDoctors(specialization, startDate, endDate);
-        result.addAll(availableRooms);
-        result.addAll(availableDoctors);
-        return result;
-
+    @PostMapping(value = "/available")
+    public List<GetScheduleDTO> showAvailable(@RequestBody AvailableScheduleDTO dto) {
+        return scheduleService.showAvailable(dto);
     }
 
 

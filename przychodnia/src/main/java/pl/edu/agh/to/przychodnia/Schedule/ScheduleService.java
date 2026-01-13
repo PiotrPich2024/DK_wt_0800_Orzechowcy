@@ -3,9 +3,13 @@ package pl.edu.agh.to.przychodnia.Schedule;
 import org.springframework.stereotype.Service;
 import pl.edu.agh.to.przychodnia.Doctor.Doctor;
 import pl.edu.agh.to.przychodnia.Doctor.DoctorRepository;
+import pl.edu.agh.to.przychodnia.Doctor.GetDoctorDTO;
+import pl.edu.agh.to.przychodnia.Doctor.Specialization;
 import pl.edu.agh.to.przychodnia.Room.Room;
 import pl.edu.agh.to.przychodnia.Room.RoomRepository;
 
+import javax.print.Doc;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,15 +27,39 @@ public class ScheduleService {
         this.roomRepository = roomRepository;
     }
 
-    public Schedule addSchedule(Doctor doctor, Room room, Date startDate, Date endDate) {
-        Schedule schedule = new Schedule(doctor, room, startDate, endDate);
-        return scheduleRepository.save(schedule);
+    public GetScheduleDTO addSchedule(CreateScheduleDTO dto) {
+        Doctor doctor = doctorRepository.findById(dto.getDoctorId())
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+
+        Room room = roomRepository.findById(dto.getRoomId())
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+
+        if(dto.getStartDate().isAfter(dto.getEndDate())) {
+            throw new RuntimeException("Start date cannot be after end date");
+        }
+
+        Schedule schedule = new Schedule(
+                doctor,
+                room,
+                dto.getStartDate(),
+                dto.getStartDate());
+        return mapDTO(scheduleRepository.save(schedule));
     }
 
-    public List<String> getAllSchedules() {
-        ArrayList<String> schedules = new ArrayList<>();
+    private GetScheduleDTO mapDTO(Schedule schedule) {
+        return new GetScheduleDTO(
+                schedule.getStartdate(),
+                schedule.getEnddate(),
+                schedule.getDoctor().getFullName(),
+                schedule.getDoctor().getSpecialization().toString(),
+                schedule.getRoom().getRoomNumber()
+        );
+    }
+
+    public List<GetScheduleDTO> getAllSchedules() {
+        ArrayList<GetScheduleDTO> schedules = new ArrayList<>();
         for(Schedule schedule : scheduleRepository.findAll()){
-            schedules.add(schedule.toString());
+            schedules.add(mapDTO(schedule));
         }
         return schedules;
     }
@@ -48,48 +76,66 @@ public class ScheduleService {
         return scheduleRepository.findById(id).orElse(null);
     }
 
-    public List<String> showAvailableDoctors(String specialization, Date startDate, Date endDate) {
-        List<String> doctors = new ArrayList<>();
-//        List<String> schedules = getAllSchedules();
+
+    public List<GetScheduleDTO> showAvailable(AvailableScheduleDTO dto) {
+        LocalDateTime  startDate = dto.getStartDate();
+        LocalDateTime  endDate = dto.getEndDate();
+        Specialization specialization = Specialization.fromString(dto.getSpecialization());
+
+        List<GetScheduleDTO> schedules = new ArrayList<>();
+        List<Doctor> availableDoctors = new ArrayList<>();
+        List<Room> availableRooms = new ArrayList<>();
         for (Doctor doctor : doctorRepository.findAll()) {
-            if (specialization.equals(doctor.getSpecialization())) {
-                Boolean flag = true;
+            if (doctor.getSpecialization() != specialization) {
+                continue;
+            }
+            Boolean flag = true;
+            if(doctor.getSchedule() != null && !doctor.getSchedule().isEmpty()) {
                 for (Schedule schedule : doctor.getSchedule()) {
-                    Date scheduleStartDate = schedule.getStartdate();
-                    Date scheduleEndDate = schedule.getEnddate();
-                    if (!(scheduleStartDate.compareTo(startDate) <= 0 && startDate.compareTo(scheduleEndDate) < 0 &&  scheduleEndDate.compareTo(endDate) < 0 && endDate.compareTo(scheduleEndDate) <= 0)) {
+                    LocalDateTime  scheduleStartDate = schedule.getStartdate();
+                    LocalDateTime  scheduleEndDate = schedule.getEnddate();
+                    if (startDate.compareTo(scheduleEndDate) < 0 && endDate.compareTo(scheduleStartDate) > 0) {
                         flag = false;
                         break;
                     }
                 }
-                if (flag) {
-                    doctors.add(doctor.toString());
-                }
+            }
+            if (flag) {
+                availableDoctors.add(doctor);
             }
         }
 
-        return doctors;
-    }
-
-    public List<String> showAvailableRooms(Date  startDate, Date endDate) {
-        List<String> rooms = new ArrayList<>();
         for (Room room : roomRepository.findAll()) {
             Boolean flag = true;
-            for (Schedule schedule : room.getSchedule()) {
-                Date scheduleStartDate = schedule.getStartdate();
-                Date scheduleEndDate = schedule.getEnddate();
-                if (!(scheduleStartDate.compareTo(startDate) <= 0 && startDate.compareTo(scheduleEndDate) < 0 &&  scheduleEndDate.compareTo(endDate) < 0 && endDate.compareTo(scheduleEndDate) <= 0)) {
-                    flag = false;
-                    break;
+            if(room.getSchedule() != null && !room.getSchedule().isEmpty()) {
+                for (Schedule schedule : room.getSchedule()) {
+                    LocalDateTime scheduleStartDate = schedule.getStartdate();
+                    LocalDateTime  scheduleEndDate = schedule.getEnddate();
+                    if (startDate.compareTo(scheduleEndDate) < 0 && endDate.compareTo(scheduleStartDate) > 0) {
+                        flag = false;
+                        break;
+                    }
                 }
             }
             if (flag) {
-                rooms.add(((Integer)room.getRoomNumber()).toString());
+                availableRooms.add(room);
             }
         }
 
-        return rooms;
-    }
+        for (Doctor doctor : availableDoctors){
+            for (Room room : availableRooms){
+                GetScheduleDTO scheduleDTO = new GetScheduleDTO(
+                        dto.getStartDate(),
+                        dto.getEndDate(),
+                        doctor.getFullName(),
+                        doctor.getSpecialization().toString(),
+                        room.getRoomNumber()
+                );
+                schedules.add(scheduleDTO);
+            }
+        }
 
+        return schedules;
+    }
 
 }

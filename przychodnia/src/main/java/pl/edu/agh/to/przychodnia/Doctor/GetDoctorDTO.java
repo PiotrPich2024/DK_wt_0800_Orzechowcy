@@ -1,5 +1,8 @@
 package pl.edu.agh.to.przychodnia.Doctor;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class GetDoctorDTO {
     private int id; // chwilowo dla nas aby móc kasować, pokazywać itp poprzez API
     private String firstName;
@@ -13,6 +16,10 @@ public class GetDoctorDTO {
         this.lastName = lastName;
         this.specialty = specialty;
         this.phone = phone;
+    }
+
+    public GetDoctorDTO() {
+
     }
 
     public int getId(){

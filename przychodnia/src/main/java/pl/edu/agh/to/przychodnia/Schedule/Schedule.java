@@ -6,6 +6,7 @@ import pl.edu.agh.to.przychodnia.Doctor.Doctor;
 import pl.edu.agh.to.przychodnia.Room.Room;
 
 import javax.print.Doc;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -24,15 +25,15 @@ public class Schedule {
     private Room room;
 
     @Column
-    private Date startdate;
+    private LocalDateTime  startdate;
 
     @Column
-    private Date enddate;
+    private LocalDateTime enddate;
 
     @OneToMany
     private List<Appointment> appointments;
 
-    public Schedule(Doctor doctor, Room room, Date startdate, Date enddate) {
+    public Schedule(Doctor doctor, Room room, LocalDateTime  startdate, LocalDateTime  enddate) {
         this.doctor = doctor;
         this.room = room;
         this.startdate = startdate;
@@ -56,11 +57,11 @@ public class Schedule {
         return doctor.getId();
     }
 
-    public Date getStartdate() {
+    public LocalDateTime  getStartdate() {
         return startdate;
     }
 
-    public Date getEnddate() {
+    public LocalDateTime  getEnddate() {
         return enddate;
     }
 
