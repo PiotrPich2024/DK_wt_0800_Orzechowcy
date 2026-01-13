@@ -88,4 +88,21 @@ public class Doctor {
     public Specialization getSpecialization() {
         return  specialty;
     }
+
+    public String getFirstName() {
+        return firstName;
+    }
+    public String getLastName() {
+        return lastName;
+    }
+    public String getPesel() {
+        return pesel;
+    }
+    public String getAddress() {
+        return address;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
 }

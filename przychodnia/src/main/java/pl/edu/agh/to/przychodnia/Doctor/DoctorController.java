@@ -20,7 +20,7 @@ public class DoctorController {
 
 
     @GetMapping
-    public List<String> listDoctors(){
+    public List<GetDoctorDTO> listDoctors(){
         return  doctorService.listDoctors();
     }
 
@@ -52,14 +52,9 @@ public class DoctorController {
 //    }
 
 @PostMapping(value = "/add")
-    public Doctor addDoctor(@RequestBody Map<String, String> map) {
+    public Doctor addDoctor(@RequestBody CreateDoctorDTO  dto) {
         return doctorService.addDoctor(
-                map.get("firstName"),
-                map.get("lastName"),
-                Specialization.fromString(map.get("specialty")),
-                map.get("pesel"),
-                map.get("address"),
-                map.get("phone")
+            dto
         );
     }
 
