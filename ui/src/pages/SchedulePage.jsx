@@ -240,7 +240,7 @@ const SchedulePage = () => {
 
                 {(availableResources.doctors.length > 0 || availableResources.rooms.length > 0) && (
                     <div style={{marginTop: "20px", width: "80%", borderTop: "2px solid #eee", paddingTop: "20px"}}>
-                        <h3>Dostępne zasoby:</h3>
+                        <h3>Dostępni lekarze i gabinety:</h3>
                         <div style={{display: "flex", gap: "20px"}}>
                             <div style={{flex: 1}}>
                                 <h4>Lekarze:</h4>
