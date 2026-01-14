@@ -25,3 +25,7 @@ https://app.diagrams.net/
 
 W przypadku diagramu uproszczonego, można też skorzystać z wersji do otwarcia w przeglądarce: ```UproszczonyDiagramKlas.drawio.html```.
 
+
+## JavaDoc 
+
+Znajduję się w `javadoc_index.html`

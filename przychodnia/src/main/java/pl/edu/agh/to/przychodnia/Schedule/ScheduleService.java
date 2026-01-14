@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Serwis zarządzający logiką biznesową dotyczącą grafików lekarzy i gabinetów.
+ * Umożliwia tworzenie, pobieranie, usuwanie grafików oraz sprawdzanie dostępnych terminów.
+ */
 @Service
 public class ScheduleService {
 
@@ -21,12 +25,26 @@ public class ScheduleService {
     private DoctorRepository doctorRepository;
     private RoomRepository roomRepository;
 
+    /**
+     * Konstruktor serwisu wstrzykujący potrzebne repozytoria.
+     *
+     * @param scheduleRepository repozytorium grafików
+     * @param doctorRepository   repozytorium lekarzy
+     * @param roomRepository     repozytorium gabinetów
+     */
     public ScheduleService(ScheduleRepository scheduleRepository, DoctorRepository doctorRepository, RoomRepository roomRepository) {
         this.scheduleRepository = scheduleRepository;
         this.doctorRepository = doctorRepository;
         this.roomRepository = roomRepository;
     }
 
+    /**
+     * Dodaje nowy grafik na podstawie przesłanych danych.
+     *
+     * @param dto obiekt {@link CreateScheduleDTO} zawierający dane nowego grafiku
+     * @return utworzony obiekt {@link GetScheduleDTO}
+     * @throws RuntimeException jeśli lekarz lub gabinet nie istnieje lub data startowa jest po dacie końcowej
+     */
     public GetScheduleDTO addSchedule(CreateScheduleDTO dto) {
         Doctor doctor = doctorRepository.findById(dto.getDoctorId())
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
@@ -46,6 +64,12 @@ public class ScheduleService {
         return mapDTO(scheduleRepository.save(schedule));
     }
 
+    /**
+     * Mapuje obiekt {@link Schedule} na {@link GetScheduleDTO}.
+     *
+     * @param schedule obiekt grafiku
+     * @return obiekt DTO reprezentujący grafik
+     */
     private GetScheduleDTO mapDTO(Schedule schedule) {
         return new GetScheduleDTO(
                 schedule.getId(),
@@ -57,6 +81,11 @@ public class ScheduleService {
         );
     }
 
+    /**
+     * Zwraca listę wszystkich grafików w formie DTO.
+     *
+     * @return lista obiektów {@link GetScheduleDTO}
+     */
     public List<GetScheduleDTO> getAllSchedules() {
         ArrayList<GetScheduleDTO> schedules = new ArrayList<>();
         for(Schedule schedule : scheduleRepository.findAll()){
@@ -65,6 +94,12 @@ public class ScheduleService {
         return schedules;
     }
 
+    /**
+     * Usuwa grafik o podanym ID.
+     *
+     * @param id identyfikator grafiku
+     * @return true jeśli grafik został usunięty, false w przeciwnym wypadku
+     */
     public Boolean deleteSchedule(int id) {
         if(scheduleRepository.existsById(id)) {
             scheduleRepository.deleteById(id);
@@ -73,11 +108,23 @@ public class ScheduleService {
         return false;
     }
 
+    /**
+     * Zwraca obiekt grafiku o podanym ID.
+     *
+     * @param id identyfikator grafiku
+     * @return obiekt {@link Schedule} lub null, jeśli grafik nie istnieje
+     */
     public Schedule findScheduleById(int id) {
         return scheduleRepository.findById(id).orElse(null);
     }
 
 
+    /**
+     * Zwraca listę dostępnych slotów dla lekarzy i gabinetów w określonym przedziale czasowym i o określonej specjalizacji.
+     *
+     * @param dto obiekt {@link AvailableScheduleDTO} zawierający kryteria wyszukiwania
+     * @return lista obiektów {@link AvailableSlotDTO} reprezentujących dostępne sloty czasowe
+     */
     public List<AvailableSlotDTO > showAvailable(AvailableScheduleDTO dto) {
         LocalDateTime  startDate = dto.getStartDate();
         LocalDateTime  endDate = dto.getEndDate();

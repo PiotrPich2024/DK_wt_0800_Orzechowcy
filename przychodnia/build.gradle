@@ -30,3 +30,14 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+tasks.withType(Javadoc) {
+	source = sourceSets.main.allJava
+	classpath = sourceSets.main.compileClasspath
+	options.encoding = 'UTF-8'
+	options.charSet = 'UTF-8'
+	options.author = true
+	options.version = true
+	options.links("https://docs.oracle.com/en/java/javase/17/docs/api/")
+	options.addStringOption('Xdoclint:none', '-quiet') // pomija ostrzeżenia
+}
