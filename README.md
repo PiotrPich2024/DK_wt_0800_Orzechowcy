@@ -18,10 +18,10 @@ Projekt zaliczeniowy na Technologie Obiektowe 2025/2026
 ### Schemat klasowy z relacjami:
 
 Diagramy klas UML znajdują się w plikach:
-```DiagramKlasBezRelacji.drawio```
-oraz
-```DiagramKlas.drawio```
+```DiagramKlasBezRelacji.drawio```, ```DiagramKlas.drawio``` oraz ```UproszczonyDiagramKlas.drawio```.
 
 Można je łatwo otworzyć na stronie internetowej:
 https://app.diagrams.net/
+
+W przypadku diagramu uproszczonego, można też skorzystać z wersji do otwarcia w przeglądarce: ```UproszczonyDiagramKlas.drawio.html```.
 
