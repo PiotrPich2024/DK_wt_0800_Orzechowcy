@@ -17,6 +17,7 @@ public class PatientService {
 
     private GetPatientDTO mapToDTO(Patient patient) {
         return new GetPatientDTO(
+                patient.getId(),
                 patient.getFirstName(),
                 patient.getLastName(),
                 patient.getPhone()

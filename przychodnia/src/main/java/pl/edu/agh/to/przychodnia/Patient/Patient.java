@@ -70,4 +70,8 @@ public class Patient {
     public String getPhone(){
         return phone;
     }
+
+    public int getId() {
+        return id;
+    }
 }
