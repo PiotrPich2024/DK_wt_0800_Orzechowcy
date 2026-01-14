@@ -15,10 +15,18 @@ public class PatientService {
         this.patientRepository = patientRepository;
     }
 
-    public List<String> listPatients(){
-        ArrayList<String> patients = new ArrayList<>();
+    private GetPatientDTO mapToDTO(Patient patient) {
+        return new GetPatientDTO(
+                patient.getFirstName(),
+                patient.getLastName(),
+                patient.getPhone()
+        );
+    }
+
+    public List<GetPatientDTO> listPatients(){
+        ArrayList<GetPatientDTO> patients = new ArrayList<>();
         for(Patient patient : patientRepository.findAll()){
-            patients.add(patient.toString());
+            patients.add(mapToDTO(patient));
         }
         return patients;
     }
@@ -32,21 +40,17 @@ public class PatientService {
         return false;
     }
 
-    public Patient addPatient(
-            String firstName,
-            String lastName,
-            String pesel,
-            String address,
-            String phone
+    public GetPatientDTO addPatient(
+            CreatePatientDTO dto
     ){
         Patient patient = new Patient(
-                firstName,
-                lastName,
-                pesel,
-                address,
-                phone
+                dto.getFirstName(),
+                dto.getLastName(),
+                dto.getPesel(),
+                dto.getAddress(),
+                dto.getPhone()
         );
-        return patientRepository.save(patient);
+        return mapToDTO(patientRepository.save(patient));
     }
 
     public void dropPatients(){
@@ -57,6 +61,11 @@ public class PatientService {
     public Patient findPatientById(int Id) {
         Optional<Patient> temp = patientRepository.findById(Id);
         return temp.orElse(null);
+    }
+
+    public GetPatientDTO findPatientDTOById(int Id) {
+        Optional<Patient> temp = patientRepository.findById(Id);
+        return mapToDTO(temp.get());
     }
 
 

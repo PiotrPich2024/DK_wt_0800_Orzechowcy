@@ -17,14 +17,13 @@ public class PatientController {
 
 
     @GetMapping
-    public List<String> listPatients() {
+    public List<GetPatientDTO> listPatients() {
         return  patientService.listPatients();
     }
 
     @GetMapping(value = "/{id}")
-    public String getPatient(@PathVariable int id){
-        return patientService.findPatientById(id).toString();
-
+    public GetPatientDTO getPatient(@PathVariable int id){
+        return patientService.findPatientDTOById(id);
     }
 
 
@@ -35,13 +34,9 @@ public class PatientController {
 
 
     @PostMapping(value = "/add")
-    public Patient addPatient(@RequestBody Map<String, String> map) {
+    public GetPatientDTO addPatient(@RequestBody CreatePatientDTO dto) {
         return patientService.addPatient(
-                map.get("firstName"),
-                map.get("lastName"),
-                map.get("pesel"),
-                map.get("address"),
-                map.get("phone")
+                dto
         );
     }
 
