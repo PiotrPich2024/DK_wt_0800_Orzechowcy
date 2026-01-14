@@ -48,6 +48,7 @@ public class ScheduleService {
 
     private GetScheduleDTO mapDTO(Schedule schedule) {
         return new GetScheduleDTO(
+                schedule.getId(),
                 schedule.getStartdate(),
                 schedule.getEnddate(),
                 schedule.getDoctor().getFullName(),
@@ -77,12 +78,12 @@ public class ScheduleService {
     }
 
 
-    public List<GetScheduleDTO> showAvailable(AvailableScheduleDTO dto) {
+    public List<AvailableSlotDTO > showAvailable(AvailableScheduleDTO dto) {
         LocalDateTime  startDate = dto.getStartDate();
         LocalDateTime  endDate = dto.getEndDate();
         Specialization specialization = Specialization.fromString(dto.getSpecialization());
 
-        List<GetScheduleDTO> schedules = new ArrayList<>();
+        List<AvailableSlotDTO> schedules = new ArrayList<>();
         List<Doctor> availableDoctors = new ArrayList<>();
         List<Room> availableRooms = new ArrayList<>();
         for (Doctor doctor : doctorRepository.findAll()) {
@@ -124,12 +125,14 @@ public class ScheduleService {
 
         for (Doctor doctor : availableDoctors){
             for (Room room : availableRooms){
-                GetScheduleDTO scheduleDTO = new GetScheduleDTO(
-                        dto.getStartDate(),
-                        dto.getEndDate(),
+                AvailableSlotDTO scheduleDTO = new AvailableSlotDTO (
+                        doctor.getId(),
                         doctor.getFullName(),
                         doctor.getSpecialization().toString(),
-                        room.getRoomNumber()
+                        room.getId(),
+                        room.getRoomNumber(),
+                        dto.getStartDate(),
+                        dto.getEndDate()
                 );
                 schedules.add(scheduleDTO);
             }

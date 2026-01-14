@@ -44,7 +44,7 @@ public class ScheduleController {
     }
 
     @PostMapping(value = "/available")
-    public List<GetScheduleDTO> showAvailable(@RequestBody AvailableScheduleDTO dto) {
+    public List<AvailableSlotDTO> showAvailable(@RequestBody AvailableScheduleDTO dto) {
         return scheduleService.showAvailable(dto);
     }
 

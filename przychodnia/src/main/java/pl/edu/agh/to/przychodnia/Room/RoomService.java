@@ -20,6 +20,7 @@ public class RoomService {
 
     public RoomDTO mapToDTO(Room room) {
         return new RoomDTO(
+                room.getId(),
                 room.getRoomNumber(),
                 room.getRoomDescription()
         );

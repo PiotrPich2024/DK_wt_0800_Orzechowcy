@@ -72,4 +72,8 @@ public class Schedule {
     public Room getRoom() {
         return room;
     }
+
+    public int getId() {
+        return id;
+    }
 }
