@@ -1,6 +1,9 @@
 package pl.edu.agh.to.przychodnia.Doctor;
 
 import jakarta.persistence.*;
+import pl.edu.agh.to.przychodnia.Schedule.Schedule;
+
+import java.util.List;
 
 
 @Entity
@@ -16,7 +19,7 @@ public class Doctor {
     private String lastName;
 
     @Column(nullable = false)
-    private String specialty;
+    private Specialization specialty;
 
     @Column(nullable = false)
     private String pesel;
@@ -27,10 +30,14 @@ public class Doctor {
     @Column(nullable = false)
     private String phone;
 
+    @OneToMany(mappedBy = "doctor", fetch = FetchType.LAZY)
+    private List<Schedule> schedules;
+
+
     public Doctor(
             String firstName,
             String lastName,
-            String specialty,
+            Specialization specialty,
             String pesel,
             String address,
             String phone
@@ -49,10 +56,53 @@ public class Doctor {
 
     @Override
     public String toString() {
-        return "Doktor id: " + id + ", Imię: " + firstName + ", Nazwisko: " + lastName
-                + ", specjalizacja: " + specialty + ", pesel: " + pesel +
-                ", address: " + address + ", phone: " + phone;
+        String s = "Doktor ID: " + id + ", Imię: " + firstName + ", Nazwisko: " + lastName
+                + ", Specjalizacja: " + specialty + ", Pesel: " + pesel +
+                ", Adres: " + address + ", Telefon: " + phone;
+
+        s += ", Dyżury: ";
+        if (schedules == null || schedules.isEmpty()) {
+            s += "brak";
+            return s;
+        }
+        for (Schedule schedule : schedules) {
+            s += schedule + ", ";
+        }
+        // String s = s.substring(0, s.length() - 2);
+
+        return s;
     }
 
+    public List<Schedule> getSchedule(){
+        return schedules;
+    }
 
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public Specialization getSpecialization() {
+        return  specialty;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+    public String getLastName() {
+        return lastName;
+    }
+    public String getPesel() {
+        return pesel;
+    }
+    public String getAddress() {
+        return address;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
 }

@@ -1,76 +1,210 @@
 package pl.edu.agh.to.przychodnia.Doctor;
 
 import org.springframework.stereotype.Service;
+import pl.edu.agh.to.przychodnia.Schedule.GetScheduleDTO;
+import pl.edu.agh.to.przychodnia.Schedule.Schedule;
+import pl.edu.agh.to.przychodnia.Schedule.ScheduleRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Serwis zarządzający logiką biznesową dotyczącą lekarzy.
+ * Umożliwia tworzenie, pobieranie, usuwanie lekarzy oraz przeglądanie ich grafików.
+ */
 @Service
 public class DoctorService {
     private final DoctorRepository doctorRepository;
+    private final ScheduleRepository scheduleRepository;
 
-    public DoctorService(DoctorRepository doctorRepository) {
+    /**
+     * Konstruktor serwisu wstrzykujący potrzebne repozytoria.
+     *
+     * @param doctorRepository   repozytorium lekarzy
+     * @param scheduleRepository repozytorium grafików
+     */
+    public DoctorService(DoctorRepository doctorRepository, ScheduleRepository scheduleRepository) {
         this.doctorRepository = doctorRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
-    public List<String> listDoctors(){
-        ArrayList<String> doctors = new ArrayList<>();
-        for(Doctor doctor : doctorRepository.findAll()){
-            doctors.add(doctor.toString());
-        }
-        return doctors;
+    /**
+     * Mapuje obiekt {@link Doctor} na {@link GetDoctorDTO}.
+     *
+     * @param doctor obiekt lekarza
+     * @return obiekt DTO reprezentujący lekarza
+     */
+    public GetDoctorDTO mapToGetDoctorDTO(Doctor doctor) {
+        return new GetDoctorDTO(
+                doctor.getId(),
+                doctor.getFirstName(),
+                doctor.getLastName(),
+                doctor.getSpecialization().toString(),
+                doctor.getPhone()
+        );
     }
 
-    public Boolean deleteDoctor(int id){
-        if(doctorRepository.existsById(id)){
-            doctorRepository.deleteById(id);
-            return true;
+    /**
+     * Zwraca listę wszystkich lekarzy w formie DTO.
+     *
+     * @return lista obiektów {@link GetDoctorDTO}
+     */
+    public List<GetDoctorDTO> listDoctors() {
+        List<GetDoctorDTO> result = new ArrayList<>();
+        for (Doctor doctor : doctorRepository.findAll()) {
+            result.add(mapToGetDoctorDTO(doctor));
         }
+        return result;
+    }
+
+    /**
+     * Usuwa lekarza o podanym ID, jeśli nie ma przypisanych grafików.
+     *
+     * @param doctorId identyfikator lekarza
+     * @return true jeśli lekarz został usunięty, false w przeciwnym wypadku
+     */
+    public Boolean deleteDoctor(int doctorId){
+        if(doctorRepository.existsById(doctorId)){
+            if(showDoctorSchedules(doctorId).isEmpty()) {
+                doctorRepository.deleteById(doctorId);
+                return true;
+            }
+            System.out.println("Lista dyżurów dla tego doktora nie jest pusta.");
+            return false;
+        }
+        System.out.println("Nie znaleziono doktora.");
         return false;
     }
 
+    /**
+     * Dodaje nowego lekarza na podstawie przesłanych danych.
+     *
+     * @param dto obiekt {@link CreateDoctorDTO} zawierający dane nowego lekarza
+     * @return zapisany obiekt {@link Doctor}
+     */
     public Doctor addDoctor(
-            String firstName,
-            String lastName,
-            String specialty,
-            String pesel,
-            String address,
-            String phone
+            CreateDoctorDTO dto
     ){
         Doctor doctor = new Doctor(
-             firstName,
-             lastName,
-             specialty,
-             pesel,
-             address,
-             phone
+             dto.getFirstName(),
+             dto.getLastName(),
+             Specialization.fromString(dto.getSpecialty()),
+             dto.getPesel(),
+             dto.getAddress(),
+             dto.getPhone()
         );
         return doctorRepository.save(doctor);
     }
 
+    /**
+     * Tworzy i zapisuje lekarza w bazie (pomocnicza metoda inicjalizacyjna).
+     *
+     * @param firstName      imię lekarza
+     * @param lastName       nazwisko lekarza
+     * @param specialization specjalizacja lekarza
+     * @param pesel          PESEL lekarza
+     * @param address        adres lekarza
+     * @param phone          numer telefonu lekarza
+     * @return zapisany obiekt {@link Doctor}
+     */
+    private Doctor createDoctor(
+            String firstName,
+            String lastName,
+            Specialization specialization,
+            String pesel,
+            String address,
+            String phone
+    ) {
+        Doctor doctor = new Doctor(
+                firstName,
+                lastName,
+                specialization,
+                pesel,
+                address,
+                phone
+        );
+        return doctorRepository.save(doctor);
+    }
+
+    /**
+     * Inicjalizuje bazę przykładowymi lekarzami.
+     */
     public void initDoctors(){
-        addDoctor("Jan", "Kowalski", "Kardiolog", "11111111111", "Adres 1", "123456789");
-        addDoctor("Anna", "Nowak", "Kardiolog", "22222222222", "Adres 2", "987654321");
-        addDoctor("Marek", "Zieliński", "Kardiolog", "33333333333", "Adres 3", "555444333");
+        createDoctor("Jan", "Kowalski", Specialization.fromString("Kardiolog"), "11111111111", "Adres 1", "123456789");
+        createDoctor("Anna", "Nowak", Specialization.fromString("Kardiolog"), "22222222222", "Adres 2", "987654321");
+        createDoctor("Marek", "Zieliński", Specialization.fromString("Kardiolog"), "33333333333", "Adres 3", "555444333");
 
-        addDoctor("Piotr", "Lewandowski", "Pediatra", "44444444444", "Adres 4", "666555444");
-        addDoctor("Karolina", "Król", "Pediatra", "55555555555", "Adres 5", "123123123");
+        createDoctor("Piotr", "Lewandowski", Specialization.fromString("Pediatra"), "44444444444", "Adres 4", "666555444");
+        createDoctor("Karolina", "Król", Specialization.fromString("Pediatra"), "55555555555", "Adres 5", "123123123");
 
-        addDoctor("Tomasz", "Adamczyk", "Neurolog", "66666666666", "Adres 6", "321321321");
+        createDoctor("Tomasz", "Adamczyk", Specialization.fromString("Neurolog"), "66666666666", "Adres 6", "321321321");
 
-        addDoctor("Monika", "Lis", "Dermatolog", "77777777777", "Adres 7", "111222333");
+        createDoctor("Monika", "Lis", Specialization.fromString("Dermatolog"), "77777777777", "Adres 7", "111222333");
 
         System.out.println(">>> Baza została wypełniona danymi lekarzy");
     }
 
+    /**
+     * Usuwa wszystkich lekarzy z bazy danych.
+     */
     public void dropDoctors(){
         doctorRepository.deleteAll();
     }
 
 
-    public Doctor findDoctorById(int Id) {
+    /**
+     * Zwraca DTO lekarza o podanym ID.
+     *
+     * @param Id identyfikator lekarza
+     * @return obiekt {@link GetDoctorDTO} lub null, jeśli lekarz nie istnieje
+     */
+    public GetDoctorDTO findDoctorDTOById(int Id) {
+        Optional<Doctor> temp = doctorRepository.findById(Id);
+        GetDoctorDTO dto = new GetDoctorDTO(
+                temp.get().getId(),
+                temp.get().getFirstName(),
+                temp.get().getLastName(),
+                temp.get().getSpecialization().toString(),
+                temp.get().getPhone()
+        );
+        Optional<GetDoctorDTO> optional_dto = Optional.of(dto);
+        return optional_dto.orElse(null);
+    }
+
+    /**
+     * Zwraca obiekt lekarza o podanym ID.
+     *
+     * @param Id identyfikator lekarza
+     * @return obiekt {@link Doctor} lub null, jeśli lekarz nie istnieje
+     */
+    public Doctor findDoctorByID(int Id){
         Optional<Doctor> temp = doctorRepository.findById(Id);
         return temp.orElse(null);
+    }
+
+//    public List<Schedule> findDoctorsScheduleById(int Id) {
+//        List<Schedule> schedules = doctorRepository.findById(Id).get().getSchedule();
+//        return schedules;
+//    }
+
+    /**
+     * Zwraca listę grafików dla lekarza o podanym ID.
+     *
+     * @param doctorId identyfikator lekarza
+     * @return lista obiektów {@link GetDoctorScheduleDTO} reprezentujących grafiki lekarza
+     */
+    public List<GetDoctorScheduleDTO> showDoctorSchedules(int doctorId) {
+        List<GetDoctorScheduleDTO> doctorSchedules = new ArrayList<>();
+        for(Schedule schedule: scheduleRepository.findAll()){
+            if (schedule.getDoctorId() == doctorId){
+                doctorSchedules.add(new GetDoctorScheduleDTO(
+                        schedule.getStartdate(),
+                        schedule.getEnddate(),
+                        schedule.getRoom().getRoomNumber()
+                ));
+            }
+        }
+        return doctorSchedules;
     }
 }
