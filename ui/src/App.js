@@ -6,7 +6,8 @@ import RoomPage from './pages/RoomPage';
 import PatientPage from './pages/PatientPage';
 import SchedulePage from './pages/SchedulePage';
 import DoctorDetailsPage from './pages/DoctorDetailsPage';
-
+import AppointmentsPage
+ from './pages/AppointmentsPage';
 function App() {
   return (
     <BrowserRouter>
@@ -17,6 +18,7 @@ function App() {
         <Route path="/rooms" element={<RoomPage />} />
         <Route path="/patients" element={<PatientPage />} />
         <Route path="/schedules" element={<SchedulePage />} />
+        <Route path="/appointment" element={<AppointmentsPage/>} />
       </Routes>
     </BrowserRouter>
   );
