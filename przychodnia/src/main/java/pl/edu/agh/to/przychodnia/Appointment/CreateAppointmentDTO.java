@@ -34,4 +34,11 @@ public class CreateAppointmentDTO {
         this.startDate = startDate;
     }
 
+    public LocalDateTime getEndDate() {
+        return endDate;
+    }
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
+    }
+
 }

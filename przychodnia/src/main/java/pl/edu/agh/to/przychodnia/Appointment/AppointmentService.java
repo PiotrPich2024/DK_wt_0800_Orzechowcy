@@ -166,6 +166,7 @@ public class AppointmentService {
                     }
                     if (flag) {
                         doctorsFreeAppointments.add(new DoctorsAppointmentsDTO(
+                                schedule.getId(),
                                 schedule.getDoctor().getFirstName(),
                                 schedule.getDoctor().getLastName(),
                                 schedule.getDoctor().getSpecialization().toString(),

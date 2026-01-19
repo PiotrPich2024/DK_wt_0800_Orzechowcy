@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class DoctorsAppointmentsDTO {
+    private int scheduleId;
     private String doctorFirstName;
     private String doctorLastName;
     private String specialty;
@@ -17,18 +18,26 @@ public class DoctorsAppointmentsDTO {
 
     public DoctorsAppointmentsDTO() {}
     public DoctorsAppointmentsDTO(
+            int scheduleId,
             String doctorFirstName,
             String doctorLastName,
             String specialty,
             int roomNumber,
             LocalDateTime appointmentDate
     ){
+        this.scheduleId = scheduleId;
         this.doctorFirstName = doctorFirstName;
         this.doctorLastName = doctorLastName;
         this.specialty = specialty;
         this.roomNumber = roomNumber;
         this.appointmentStartDate = appointmentDate;
         this.appointmentEndDate = appointmentDate.plusMinutes(15);
+    }
+    public int getScheduleId() {
+        return scheduleId;
+    }
+    public void setScheduleId(int scheduleId) {
+        this.scheduleId = scheduleId;
     }
 
     public String getDoctorFirstName() {
