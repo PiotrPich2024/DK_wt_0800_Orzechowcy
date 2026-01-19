@@ -28,4 +28,4 @@ W przypadku diagramu uproszczonego, można też skorzystać z wersji do otwarcia
 
 ## JavaDoc 
 
-Znajduję się w [Javadoc](javadoc_index.html)
+Znajduję się w [Javadoc](javadoc/index.html)

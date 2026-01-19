@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"pl.edu.agh.to.przychodnia"},{"l":"pl.edu.agh.to.przychodnia.Appointment"},{"l":"pl.edu.agh.to.przychodnia.Doctor"},{"l":"pl.edu.agh.to.przychodnia.Patient"},{"l":"pl.edu.agh.to.przychodnia.Room"},{"l":"pl.edu.agh.to.przychodnia.Schedule"}];updateSearchResults();
