@@ -14,12 +14,26 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Service responsible for handling business logic related to medical appointments.
+ * <p>
+ * This service allows creating, deleting and retrieving appointments,
+ * as well as finding available appointment slots for a given doctor.
+ */
 @Service
 public class AppointmentService {
     private AppointmentRepository appointmentRepository;
     private ScheduleRepository scheduleRepository;
     private PatientRepository patientRepository;
 
+    /**
+     * Constructs an AppointmentService with required repositories.
+     *
+     * @param appointmentRepository repository for appointments
+     * @param scheduleRepository repository for schedules
+     * @param patientRepository repository for patients
+     */
     public AppointmentService(AppointmentRepository appointmentRepository,
                               ScheduleRepository scheduleRepository,
                               PatientRepository patientRepository
@@ -29,6 +43,12 @@ public class AppointmentService {
         this.patientRepository = patientRepository;
     }
 
+    /**
+     * Maps an {@link Appointment} entity to a {@link GetAppointmentDTO}.
+     *
+     * @param appointment appointment entity to be mapped
+     * @return mapped appointment DTO
+     */
     private GetAppointmentDTO maptoDTO(Appointment appointment) {
         return new GetAppointmentDTO(
                 appointment.getId(),
@@ -43,6 +63,17 @@ public class AppointmentService {
         );
     }
 
+    /**
+     * Creates a new appointment for a given patient and schedule.
+     * <p>
+     * The appointment lasts 15 minutes. If the selected time slot
+     * is already taken, an exception is thrown.
+     *
+     * @param appointmentDTO DTO containing appointment creation data
+     * @return created appointment as DTO
+     * @throws IllegalArgumentException if patient or schedule does not exist
+     * @throws IllegalStateException if the appointment slot is already taken
+     */
     public GetAppointmentDTO createAppointment(CreateAppointmentDTO appointmentDTO) {
         Patient patient = patientRepository.findById(appointmentDTO.getPatientId())
                 .orElseThrow(() -> new IllegalArgumentException("Patient not found"));
@@ -68,6 +99,11 @@ public class AppointmentService {
         return maptoDTO(appointmentRepository.save(appointment));
     }
 
+    /**
+     * Retrieves all appointments as string representations.
+     *
+     * @return list of appointment strings
+     */
     public List<String> getAllAppointments() {
         ArrayList<String> appointments = new ArrayList<>();
         for(Appointment appointment : appointmentRepository.findAll()){
@@ -77,6 +113,13 @@ public class AppointmentService {
 
     }
 
+    /**
+     * Deletes an appointment with the given ID.
+     *
+     * @param id appointment identifier
+     * @return {@code true} if appointment existed and was deleted,
+     *         {@code false} otherwise
+     */
     public Boolean deleteAppointment(int id) {
         if(appointmentRepository.existsById(id)) {
             appointmentRepository.deleteById(id);
@@ -85,6 +128,16 @@ public class AppointmentService {
         return false;
     }
 
+    /**
+     * Returns a list of free appointment slots for a given doctor
+     * within the next 7 days starting from the provided date.
+     * <p>
+     * Appointments are divided into 15-minute slots.
+     *
+     * @param doctorID identifier of the doctor
+     * @param date starting date for searching available slots
+     * @return list of available doctor appointment slots
+     */
     public List<DoctorsAppointmentsDTO> getFreeDoctorAppointments(int doctorID, LocalDateTime date) {
 
         List<DoctorsAppointmentsDTO> doctorsFreeAppointments = new ArrayList<>();
