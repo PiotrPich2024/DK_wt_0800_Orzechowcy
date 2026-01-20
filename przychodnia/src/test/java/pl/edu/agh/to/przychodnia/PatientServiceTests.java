@@ -6,9 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.edu.agh.to.przychodnia.Patient.Patient;
-import pl.edu.agh.to.przychodnia.Patient.PatientRepository;
-import pl.edu.agh.to.przychodnia.Patient.PatientService;
+import pl.edu.agh.to.przychodnia.Appointment.Appointment;
+import pl.edu.agh.to.przychodnia.Appointment.AppointmentRepository;
+import pl.edu.agh.to.przychodnia.Patient.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,53 +22,63 @@ public class PatientServiceTests {
     @Mock
     private PatientRepository patientRepository;
 
+    @Mock
+    private AppointmentRepository appointmentRepository;
+
     @InjectMocks
     private PatientService patientService;
 
     @Test
-    void listPatientsShouldReturnListOfStrings() {
-        Patient p1 = mock(Patient.class);
-        when(p1.toString()).thenReturn("Jan Kowalski");
+    void listPatientsShouldReturnPatientDTOs() {
+        Patient p1 = new Patient("Jan", "Kowalski", "123", "Adres", "111");
+        Patient p2 = new Patient("Anna", "Nowak", "456", "Adres2", "222");
 
-        Patient p2 = mock(Patient.class);
-        when(p2.toString()).thenReturn("Anna Nowak");
+        when(patientRepository.findAll()).thenReturn(List.of(p1, p2));
 
-        when(patientRepository.findAll())
-                .thenReturn(List.of(p1, p2));
-
-        List<String> result = patientService.listPatients();
+        List<GetPatientDTO> result = patientService.listPatients();
 
         assertEquals(2, result.size());
-        assertEquals("Jan Kowalski", result.get(0));
-        assertEquals("Anna Nowak", result.get(1));
+        assertEquals("Jan", result.get(0).getFirstName());
+        assertEquals("Anna", result.get(1).getFirstName());
 
         verify(patientRepository).findAll();
     }
 
     @Test
-    void addPatientShouldSaveAndReturnPatient() {
-        Patient patient = new Patient("Jan", "Kowalski", "12345678901", "Adres", "111222333");
-
-        when(patientRepository.save(any(Patient.class)))
-                .thenReturn(patient);
-
-        Patient result = patientService.addPatient(
-                "Jan", "Kowalski", "12345678901", "Adres", "111222333"
+    void addPatientShouldSaveAndReturnDTO() {
+        CreatePatientDTO dto = new CreatePatientDTO(
+                 "Kowalski", "Jan", "123",
+                "Adres", "111"
         );
 
+        when(patientRepository.save(any(Patient.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        GetPatientDTO result = patientService.addPatient(dto);
+
         assertNotNull(result);
-        assertEquals("Jan Kowalski", result.getFullName());
+        assertEquals("Jan", result.getFirstName());
+        assertEquals("Kowalski", result.getLastName());
 
         verify(patientRepository).save(any(Patient.class));
     }
 
     @Test
-    void deletePatientShouldReturnTrueWhenExists() {
+    void deletePatientShouldDeleteAppointmentsAndPatient() {
+        // Patient patient = new Patient("Jan", "Kowalski", "123", "Adres", "111");
+        Patient patient = mock(Patient.class);
+        Appointment appointment = mock(Appointment.class);
+
+        when(patient.getId()).thenReturn(1);
+        when(appointment.getPatient()).thenReturn(patient);
+
         when(patientRepository.existsById(1)).thenReturn(true);
+        when(appointmentRepository.findAll()).thenReturn(List.of(appointment));
 
         Boolean result = patientService.deletePatient(1);
 
         assertTrue(result);
+        verify(appointmentRepository).delete(appointment);
         verify(patientRepository).deleteById(1);
     }
 
