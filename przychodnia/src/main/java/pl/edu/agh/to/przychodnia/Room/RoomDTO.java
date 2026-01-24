@@ -1,6 +1,9 @@
 package pl.edu.agh.to.przychodnia.Room;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class RoomDTO {
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY, example = "5")
     private int id;
     private int roomNumber;
     private String roomDescription;

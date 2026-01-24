@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class GetDoctorDTO {
-    private int id; // chwilowo dla nas aby móc kasować, pokazywać itp poprzez API
+    private int id;
     private String firstName;
     private String lastName;
     private String specialty;

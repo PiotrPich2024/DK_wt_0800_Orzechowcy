@@ -13,6 +13,7 @@ public class CreateScheduleDTO {
         this.startDate = startDate;
         this.endDate = endDate;
         this.doctorId = doctorId;
+        this.roomId = roomId;
     }
 
     public CreateScheduleDTO() {}
