@@ -5,9 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.edu.agh.to.przychodnia.Room.Room;
-import pl.edu.agh.to.przychodnia.Room.RoomRepository;
-import pl.edu.agh.to.przychodnia.Room.RoomService;
+import pl.edu.agh.to.przychodnia.Doctor.Doctor;
+import pl.edu.agh.to.przychodnia.Room.*;
 import pl.edu.agh.to.przychodnia.Schedule.Schedule;
 import pl.edu.agh.to.przychodnia.Schedule.ScheduleRepository;
 
@@ -38,11 +37,11 @@ public class RoomServiceTests {
         when(roomRepository.findAll())
                 .thenReturn(List.of(room1, room2));
 
-        List<String> result = roomService.getAllRooms();
+        List<RoomDTO> result = roomService.getAllRooms();
 
         assertEquals(2, result.size());
-        assertTrue(result.get(0).contains("101"));
-        assertTrue(result.get(1).contains("102"));
+        assertEquals(101, result.get(0).getRoomNumber());
+        assertEquals(102, result.get(1).getRoomNumber());
 
         verify(roomRepository).findAll();
     }
@@ -50,18 +49,16 @@ public class RoomServiceTests {
     @Test
     void addRoomShouldSaveRoom() {
 
-        Room savedRoom = new Room(201, "Sala zabiegowa");
+        RoomDTO dto = new RoomDTO(0, 201, "Sala zabiegowa");
 
         when(roomRepository.save(any(Room.class)))
-                .thenReturn(savedRoom);
+                .thenReturn(new Room(201, "Sala zabiegowa"));
 
-        Room result = roomService.addRoom(201, "Sala zabiegowa");
+        RoomDTO result = roomService.addRoom(dto);
 
         assertNotNull(result);
         assertEquals(201, result.getRoomNumber());
-
-        verify(roomRepository)
-                .save(any(Room.class));
+        verify(roomRepository).save(any(Room.class));
     }
 
     @Test
@@ -85,6 +82,10 @@ public class RoomServiceTests {
 
         Schedule schedule = mock(Schedule.class);
         when(schedule.getRoomId()).thenReturn(2);
+
+        Doctor doctor = mock(Doctor.class);
+        when(schedule.getDoctor()).thenReturn(doctor);
+        when(doctor.getFullName()).thenReturn("Andrzej Nowak");
 
         when(roomRepository.existsById(2))
                 .thenReturn(true);
@@ -134,9 +135,13 @@ public class RoomServiceTests {
     @Test
     void showRoomSchedulesShouldFilterSchedules() {
 
+        Doctor doctor = mock(Doctor.class);
+        when(doctor.getFullName()).thenReturn("Jan Kowalski");
+
         Schedule s1 = mock(Schedule.class);
         when(s1.getRoomId()).thenReturn(10);
-        when(s1.toString()).thenReturn("schedule10");
+        when(s1.getDoctor()).thenReturn(doctor);
+
 
         Schedule s2 = mock(Schedule.class);
         when(s2.getRoomId()).thenReturn(20);
@@ -144,11 +149,11 @@ public class RoomServiceTests {
         when(scheduleRepository.findAll())
                 .thenReturn(List.of(s1, s2));
 
-        List<String> result =
+        List<RoomsScheduleDTO> result =
                 roomService.showRoomSchedules(10);
 
         assertEquals(1, result.size());
-        assertEquals("schedule10", result.get(0));
+        assertEquals("Jan Kowalski", result.get(0).getDoctorsFullName());
 
         verify(scheduleRepository).findAll();
     }

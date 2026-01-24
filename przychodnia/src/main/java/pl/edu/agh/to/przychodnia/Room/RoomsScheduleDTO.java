@@ -32,4 +32,5 @@ public class RoomsScheduleDTO {
     public void setDoctorsFullName(String doctorsFullName) {
         this.doctorsFullName = doctorsFullName;
     }
+
 }
