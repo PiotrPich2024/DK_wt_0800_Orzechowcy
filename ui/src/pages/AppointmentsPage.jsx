@@ -1,29 +1,40 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import api from "../services/api.js";
 
 const AppointmentsPage = () => {
+  const [searchParams] = useSearchParams();
   const [appointments, setAppointments] = useState([]);
   const [availableSlots, setAvailableSlots] = useState([]);
   
 
   const [searchData, setSearchData] = useState({
     doctorId: "",
-    date: "",
+    startDate: "",
+    endDate: "",
   });
 
   const [formData, setFormData] = useState({
-    patientId: "",
+    patientId: searchParams.get("patientId") || "",
     scheduleId: "",
     startDate: "",
     endDate: "",
   });
 
   /* ===================== Funkcja do konwersji daty ===================== */
+  const parseDate = (value) => {
+    if (!value) return null;
+    if (Array.isArray(value)) {
+        // [y, m, d, h, min]
+        return new Date(value[0], value[1] - 1, value[2], value[3] || 0, value[4] || 0);
+    }
+    return new Date(value);
+  };
+
 const toDateTimeLocal = (value) => {
-  if (!value) return "";
-  // jeśli backend zwraca ISO string np. 2026-01-17T09:45:00
-  const date = new Date(value);
+  const date = parseDate(value);
+  if (!date || isNaN(date.getTime())) return "";
+
   // format: YYYY-MM-DDTHH:mm
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -65,12 +76,32 @@ const toDateTimeLocal = (value) => {
   const searchFreeSlots = async (e) => {
     e.preventDefault();
     try {
+      let dateParam = searchData.startDate;
+      // Ensure seconds are present for LocalDateTime
+      if (dateParam && dateParam.length === 16) {
+         dateParam += ":00";
+      }
+
       const response = await api.get(
-        `/appointment/${searchData.doctorId}/${searchData.date}`
+        `/appointment/${searchData.doctorId}/${dateParam}`
       );
-      setAvailableSlots(response.data);
+      
+      console.log("Raw slots:", response.data);
+      let slots = response.data;
+      if (searchData.endDate) {
+          const end = new Date(searchData.endDate);
+          slots = slots.filter(slot => {
+             const slotDate = parseDate(slot.appointmentStartDate);
+             return slotDate && slotDate <= end;
+          });
+      }
+      setAvailableSlots(slots);
+      if (slots.length === 0) {
+          alert("Brak wolnych terminów w wybranym przedziale. Spróbuj zmienić datę początkową.");
+      }
     } catch (error) {
       console.error("Błąd pobierania slotów:", error);
+      alert("Wystąpił błąd podczas wyszukiwania terminów. Sprawdź poprawność danych (ID lekarza, data).");
     }
   };
 
@@ -163,12 +194,21 @@ const selectSlot = (slot) => {
               required
             />
 
+            <label>Data od:</label>
             <input
               type="datetime-local"
-              name="date"
-              value={searchData.date}
+              name="startDate"
+              value={searchData.startDate}
               onChange={handleSearchChange}
               required
+            />
+            
+            <label>Data do (opcjonalnie):</label>
+            <input
+              type="datetime-local"
+              name="endDate"
+              value={searchData.endDate}
+              onChange={handleSearchChange}
             />
 
             <button type="submit">Szukaj</button>
@@ -221,9 +261,14 @@ const selectSlot = (slot) => {
             {availableSlots.map((slot, idx) => (
               <div key={idx} style={slotStyle}>
                 <div>
+                   {(() => {
+                        const d = parseDate(slot.appointmentStartDate);
+                        if (!d || isNaN(d.getTime())) return <span>Błędna data</span>;
+                        return <strong>{d.toLocaleDateString()} {d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</strong>;
+                   })()}
+                   <br/>
                   {slot.doctorFirstName} {slot.doctorLastName} ({slot.specialty})<br />
-                  Gabinet {slot.roomNumber}<br />
-                  {toDateTimeLocal(slot.appointmentStartDate)} → {toDateTimeLocal(slot.appointmentEndDate)}
+                  Gabinet {slot.roomNumber}
                 </div>
                 <button onClick={() => selectSlot(slot)}>Wybierz</button>
               </div>

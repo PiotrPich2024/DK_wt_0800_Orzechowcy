@@ -2,6 +2,20 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import api from "../services/api";
 
+const parseDate = (value) => {
+    if (!value) return null;
+    if (Array.isArray(value)) {
+        return new Date(value[0], value[1] - 1, value[2], value[3] || 0, value[4] || 0);
+    }
+    return new Date(value);
+};
+
+const formatDateForDisplay = (value) => {
+    const date = parseDate(value);
+    if (!date || isNaN(date.getTime())) return "";
+    return date.toLocaleString('pl-PL', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+};
+
 const DoctorPage = () => {
     const navigate = useNavigate();
 
@@ -85,10 +99,10 @@ const DoctorPage = () => {
                     marginBottom: "10px",
                     borderRadius: "6px"
                 }}>
+                    <p><strong>ID: {d.id}</strong></p>
                     <p><strong>{d.firstName} {d.lastName}</strong></p>
                     <p>Specjalizacja: {d.specialty}</p>
                     <p>Telefon: {d.phone}</p>
-
                     <button onClick={() => navigate(`/doctors/${d.id}`)}>
                         Szczegóły
                     </button>

@@ -1,19 +1,9 @@
 import React , {useEffect, useState} from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import api from "../services/api.js";
 
-class Patient {
-    constructor(id, firstname, lastname, pesel, address, phone) {
-        this.id = id;
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.pesel = pesel;
-        this.address = address;
-        this.phone = phone;
-    }
-}
-
 const PatientPage = () => {
+    const navigate = useNavigate();
     const [patientsList, setPatientsList] = useState([]);
     const [formData, setFormData] = useState({
         firstName: "",
@@ -22,6 +12,10 @@ const PatientPage = () => {
         address: "",
         phone: ""
     });
+
+    useEffect(() => {
+        showPatients();
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -63,44 +57,16 @@ const PatientPage = () => {
         }
     };
 
-    const parsePatient = (patientString) => {
-        try {
-            const parts = patientString.split(', ');
-            const getVal = (key) => {
-                const part = parts.find(p => p.startsWith(key));
-                return part ? part.split(': ')[1] : '';
-            };
-
-            const id = getVal("Pacjent ID");
-            if (!id) return null;
-
-            return new Patient(
-                parseInt(id),
-                getVal("Imię"),
-                getVal("Nazwisko"),
-                getVal("Pesel"),
-                getVal("Adres"),
-                getVal("Telefon")
-            );
-        } catch (e) {
-            console.error("Error parsing patient string:", patientString, e);
-            return null;
-        }
-    };
-
     const showPatients = async () => {
         try {
             const response = await api.get("/patients");
             console.log("Response data:", response.data);
             
-            let dataToParse = response.data;
-            if(!Array.isArray(dataToParse)) {
-                console.warn("Response data is not an array", dataToParse);
-                return;
+            if (Array.isArray(response.data)) {
+                setPatientsList(response.data);
+            } else {
+                console.warn("Response data is not an array", response.data);
             }
-
-            const patients = dataToParse.map(p => parsePatient(p)).filter(p => p !== null);
-            setPatientsList(patients);
         } catch (error) {
             console.error("There was a problem with the fetch operation:", error);
         }
@@ -124,11 +90,12 @@ const PatientPage = () => {
                                 backgroundColor: "#f9f9f9"
                             }}>
                                 <p><strong>ID:</strong> {patient.id}</p>
-                                <p><strong>Imię i Nazwisko:</strong> {patient.firstname} {patient.lastname}</p>
-                                <p><strong>PESEL:</strong> {patient.pesel}</p>
-                                <p><strong>Adres:</strong> {patient.address}</p>
+                                <p><strong>Imię i Nazwisko:</strong> {patient.firstName} {patient.lastName}</p>
                                 <p><strong>Telefon:</strong> {patient.phone}</p>
-                                <button onClick={() => handleDeletePatient(patient.id)} style={{backgroundColor: "#ff4444", color: "white", border: "none", padding: "5px 10px", marginTop: "5px", cursor: "pointer", borderRadius: "3px"}}>Usuń</button>
+                                <div style={{display: "flex", gap: "10px", marginTop: "5px"}}>
+                                    <button onClick={() => handleDeletePatient(patient.id)} style={{backgroundColor: "#ff4444", color: "white", border: "none", padding: "5px 10px", cursor: "pointer", borderRadius: "3px"}}>Usuń</button>
+                                    <button onClick={() => navigate(`/appointment?patientId=${patient.id}`)} style={{backgroundColor: "#007bff", color: "white", border: "none", padding: "5px 10px", cursor: "pointer", borderRadius: "3px"}}>Umów wizytę</button>
+                                </div>
                             </div>
                         ))}
                     </div>
