@@ -2,12 +2,10 @@ package pl.edu.agh.to.przychodnia;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import pl.edu.agh.to.przychodnia.Doctor.Doctor;
-import pl.edu.agh.to.przychodnia.Doctor.DoctorRepository;
-import pl.edu.agh.to.przychodnia.Doctor.DoctorService;
-import pl.edu.agh.to.przychodnia.Doctor.Specialization;
+import pl.edu.agh.to.przychodnia.Doctor.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import pl.edu.agh.to.przychodnia.Room.Room;
 import pl.edu.agh.to.przychodnia.Schedule.Schedule;
 import pl.edu.agh.to.przychodnia.Schedule.ScheduleRepository;
 
@@ -20,6 +18,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class DoctorServiceTests {
+
     @Mock
     private DoctorRepository doctorRepository;
 
@@ -30,49 +29,66 @@ public class DoctorServiceTests {
     private DoctorService doctorService;
 
     @Test
-    void listDoctorsShouldReturnFormattedStrings() {
+    void listDoctorsShouldReturnDoctorDTOs() {
 
         Doctor doctor1 = new Doctor("Jan", "Kowalski", Specialization.fromString("Kardiolog"),
-                "123", "Adres", "111");
+                "12312312311", "Adres", "111222333");
 
         Doctor doctor2 = new Doctor("Anna", "Nowak", Specialization.fromString("Neurolog"),
-                "456", "Adres2", "222");
+                "45645645644", "Adres2", "222444222");
 
         when(doctorRepository.findAll())
                 .thenReturn(List.of(doctor1, doctor2));
 
-        List<String> result = doctorService.listDoctors();
+        List<GetDoctorDTO> result = doctorService.listDoctors();
 
         assertEquals(2, result.size());
-        assertTrue(result.get(0).contains("Jan"));
-        assertTrue(result.get(1).contains("Anna"));
+
+        assertEquals("Jan", result.get(0).getFirstName());
+        assertEquals("Anna", result.get(1).getFirstName());
+
+        assertEquals("Kowalski", result.get(0).getLastName());
+        assertEquals("Nowak", result.get(1).getLastName());
+
+        assertEquals("Kardiolog", result.get(0).getSpecialty());
+        assertEquals("Neurolog", result.get(1).getSpecialty());
+
+        assertEquals("111222333", result.get(0).getPhone());
+        assertEquals("222444222", result.get(1).getPhone());
 
         verify(doctorRepository).findAll();
     }
 
     @Test
-    void addDoctorShouldSaveAndReturnDoctor() {
+    void addDoctorShouldSaveDoctorFromDTO() {
 
-        Doctor savedDoctor = new Doctor("Jan", "Kowalski",
-                Specialization.fromString("Pediatra"), "111", "Adres", "123");
+        CreateDoctorDTO dto = new CreateDoctorDTO();
+        dto.setFirstName("Jan");
+        dto.setLastName("Kowalski");
+        dto.setSpecialty("Pediatra");
+        dto.setPesel("12312312311");
+        dto.setPhone("111222333");
+        dto.setAddress("Adres 22");
 
         when(doctorRepository.save(any(Doctor.class)))
-                .thenReturn(savedDoctor);
+                .thenAnswer(inv -> inv.getArgument(0));
 
-        Doctor result = doctorService.addDoctor(
-                "Jan", "Kowalski", Specialization.fromString("Pediatra"),
-                "111", "Adres", "123"
-        );
+        Doctor result = doctorService.addDoctor(dto);
 
         assertNotNull(result);
-        assertEquals("Jan Kowalski", result.getFullName());
+        assertEquals("Jan", result.getFirstName());
+        assertEquals("Kowalski", result.getLastName());
+        assertEquals("Pediatra", result.getSpecialization().toString());
+        assertEquals("12312312311", result.getPesel());
+        assertEquals("111222333", result.getPhone());
+        assertEquals("Adres 22", result.getAddress());
 
-        verify(doctorRepository)
-                .save(any(Doctor.class));
+        verify(doctorRepository).save(any(Doctor.class));
+
     }
 
     @Test
-    void deleteDoctorShouldReturnTrueWhenNoSchedules() {
+    void deleteDoctorShouldDeleteWhenNoSchedules() {
 
         when(doctorRepository.existsById(1))
                 .thenReturn(true);
@@ -89,9 +105,13 @@ public class DoctorServiceTests {
     }
 
     @Test
-    void deleteDoctorShouldReturnFalseWhenHasSchedules() {
+    void deleteDoctorShouldFailWhenHasSchedules() {
 
         Schedule schedule = mock(Schedule.class);
+        Room room = mock(Room.class);
+
+        when(schedule.getRoom()).thenReturn(room);
+        when(room.getRoomNumber()).thenReturn(101);
         when(schedule.getDoctorId()).thenReturn(2);
 
         when(doctorRepository.existsById(2))
@@ -131,7 +151,7 @@ public class DoctorServiceTests {
         when(doctorRepository.findById(5))
                 .thenReturn(Optional.of(doctor));
 
-        Doctor result = doctorService.findDoctorById(5);
+        Doctor result = doctorService.findDoctorByID(5);
 
         assertNotNull(result);
         assertEquals("Monika Lis",
@@ -139,25 +159,38 @@ public class DoctorServiceTests {
     }
 
     @Test
-    void showDoctorSchedulesShouldFilterByDoctorId() {
+    void findDoctorDTOByIdShouldReturnDTO() {
+        Doctor doctor = new Doctor("Monika", "Lis",
+                Specialization.fromString("Dermatolog"),
+                "999", "Adres", "333");
 
-        Schedule s1 = mock(Schedule.class);
-        when(s1.getDoctorId()).thenReturn(1);
-        when(s1.toString()).thenReturn("schedule1");
+        when(doctorRepository.findById(5))
+                .thenReturn(Optional.of(doctor));
 
-        Schedule s2 = mock(Schedule.class);
-        when(s2.getDoctorId()).thenReturn(2);
+        GetDoctorDTO dto = doctorService.findDoctorDTOById(5);
+
+        assertNotNull(dto);
+        assertEquals("Monika", dto.getFirstName());
+        assertEquals("Lis", dto.getLastName());
+    }
+
+    @Test
+    void showDoctorSchedulesShouldReturnScheduleDTOs() {
+        Schedule schedule = mock(Schedule.class);
+        Room room = mock(Room.class);
+
+        when(room.getRoomNumber()).thenReturn(101);
+        when(schedule.getDoctorId()).thenReturn(1);
+        when(schedule.getRoom()).thenReturn(room);
 
         when(scheduleRepository.findAll())
-                .thenReturn(List.of(s1, s2));
+                .thenReturn(List.of(schedule));
 
-        List<String> result =
+        List<GetDoctorScheduleDTO> result =
                 doctorService.showDoctorSchedules(1);
 
         assertEquals(1, result.size());
-        assertEquals("schedule1", result.get(0));
-
-        verify(scheduleRepository).findAll();
+        assertEquals(101, result.get(0).getRoomNumber());
     }
 
 

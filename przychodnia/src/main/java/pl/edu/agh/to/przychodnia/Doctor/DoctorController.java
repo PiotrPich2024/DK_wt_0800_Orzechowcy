@@ -7,97 +7,133 @@ import org.springframework.web.bind.annotation.*;
 import javax.print.Doc;
 import java.util.List;
 import java.util.Map;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-/**
- * REST Controller zarządzający operacjami na lekarzach.
- * Umożliwia pobieranie, dodawanie, usuwanie lekarzy oraz przeglądanie ich dyżurów.
- */
+@Tag(
+        name = "Doctors",
+        description = "Operacje związane z lekarzami: pobieranie, dodawanie, usuwanie oraz grafiki"
+)
 @RequestMapping(path = "doctors")
 @RestController
 public class DoctorController {
 
     private DoctorService doctorService;
 
-    /**
-     * Konstruktor kontrolera, wstrzykujący serwis zarządzający lekarzami.
-     *
-     * @param doctorService serwis odpowiedzialny za logikę biznesową dotyczącą lekarzy
-     */
+
     public DoctorController(DoctorService doctorService) {
         this.doctorService = doctorService;
     }
 
 
-    /**
-     * Zwraca listę wszystkich lekarzy.
-     *
-     * @return lista obiektów {@link GetDoctorDTO} reprezentujących lekarzy
-     */
+    @Operation(
+            summary = "Pobierz listę lekarzy",
+            description = "Zwraca listę wszystkich lekarzy w systemie"
+    )
+    @ApiResponse(responseCode = "200", description = "Lista lekarzy")
     @GetMapping
     public List<GetDoctorDTO> listDoctors(){
         return  doctorService.listDoctors();
     }
 
-    /**
-     * Zwraca szczegóły lekarza o podanym ID.
-     *
-     * @param id identyfikator lekarza
-     * @return obiekt {@link GetDoctorDTO} reprezentujący lekarza
-     */
+    @Operation(
+            summary = "Pobierz lekarza po ID",
+            description = "Zwraca szczegóły lekarza o podanym identyfikatorze"
+    )
+    @ApiResponse(responseCode = "200", description = "Dane lekarza")
     @GetMapping(value = "/{id}")
-    public GetDoctorDTO getDoctor(@PathVariable int id){
+    public GetDoctorDTO getDoctor(
+            @Parameter(description = "ID lekarza", example = "1")
+            @PathVariable int id
+    ){
         return doctorService.findDoctorDTOById(id);
 
     }
 
-    /**
-     * Usuwa lekarza o podanym ID.
-     *
-     * @param id identyfikator lekarza do usunięcia
-     * @return true jeśli lekarz został usunięty, false w przeciwnym wypadku
-     */
+    @Operation(
+            summary = "Usuń lekarza",
+            description = "Usuwa lekarza o podanym ID z systemu jęsli nie ma przypisanego dyżuru inaczej nie usuwamy doktora i zwracamy false"
+    )
+    @ApiResponse(responseCode = "200", description = "Status usunięcia lekarza")
     @GetMapping(value = "/delete/{id}")
-    public Boolean DeleteDoctor(@PathVariable int id){
+    public Boolean DeleteDoctor(
+            @Parameter(description = "ID lekarza", example = "1")
+            @PathVariable int id
+    ){
         return doctorService.deleteDoctor(id);
     }
 
-    /**
-     * Dodaje nowego lekarza na podstawie przesłanych danych.
-     *
-     * @param dto obiekt {@link CreateDoctorDTO} zawierający dane nowego lekarza
-     * @return utworzony obiekt {@link Doctor}
-     */
+    @Operation(
+            summary = "Dodaj nowego lekarza",
+            description = "Tworzy nowego lekarza na podstawie przekazanych danych"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Utworzony lekarz",
+            content = @Content(schema = @Schema(implementation = Doctor.class))
+    )
     @PostMapping(value = "/add")
-    public Doctor addDoctor(@RequestBody CreateDoctorDTO  dto) {
+    public Doctor addDoctor(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Dane nowego lekarza",
+                    required = true,
+                    content = @Content(
+                            examples = @ExampleObject(
+                                    name = "Przykładowy lekarz",
+                                    value = """
+                                        {
+                                        "firstName": "Jan",
+                                        "lastName": "Kowalski",
+                                        "specialty": "Kardiolog",
+                                        "pesel": "0293809238",
+                                        "address": "Krakow",
+                                        "phone": "890567489",
+                                        }
+                                        """
+                            )
+                    )
+            )
+            @RequestBody CreateDoctorDTO dto
+    ) {
         return doctorService.addDoctor(
             dto
         );
     }
 
-    /**
-     * Inicjalizuje bazę danych przykładowymi lekarzami.
-     */
+    @Operation(
+            summary = "Inicjalizacja lekarzy",
+            description = "Tworzy przykładowych lekarzy w bazie danych"
+    )
+    @ApiResponse(responseCode = "200", description = "Zainicjalizowano dane")
     @GetMapping(value = "/init")
     public void initDoctor(){
         doctorService.initDoctors();
     }
 
-    /**
-     * Usuwa wszystkich lekarzy z bazy danych.
-     */
+    @Operation(
+            summary = "Usuń wszystkich lekarzy",
+            description = "Czyści bazę danych lekarzy"
+    )
+    @ApiResponse(responseCode = "200", description = "Baza lekarzy wyczyszczona")
     @GetMapping(value = "/drop")
     public void dropDoctors(){
         doctorService.dropDoctors();
     }
 
-    /**
-     * Zwraca listę grafików lekarza o podanym ID.
-     *
-     * @param id identyfikator lekarza
-     * @return lista obiektów {@link GetDoctorScheduleDTO} reprezentujących grafiki lekarza
-     */
+    @Operation(
+            summary = "Pobierz grafiki lekarza",
+            description = "Zwraca listę grafików/dyżurów lekarza o podanym ID"
+    )
     @GetMapping(value = "/{id}/schedules")
-    public List<GetDoctorScheduleDTO> schowDoctorSchedules(@PathVariable int id){
+    public List<GetDoctorScheduleDTO> schowDoctorSchedules(
+            @Parameter(description = "ID lekarza", example = "1")
+            @PathVariable int id
+    ){
         return doctorService.showDoctorSchedules(id);
     }
 

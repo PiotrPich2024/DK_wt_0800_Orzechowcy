@@ -7,6 +7,7 @@ public class GetPatientDTO {
     private String phone;
 
     public GetPatientDTO(int id, String firstName, String lastName, String phone) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;

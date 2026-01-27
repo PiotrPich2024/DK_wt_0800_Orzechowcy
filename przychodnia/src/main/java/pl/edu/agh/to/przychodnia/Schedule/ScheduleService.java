@@ -1,6 +1,8 @@
 package pl.edu.agh.to.przychodnia.Schedule;
 
 import org.springframework.stereotype.Service;
+import pl.edu.agh.to.przychodnia.Appointment.Appointment;
+import pl.edu.agh.to.przychodnia.Appointment.AppointmentRepository;
 import pl.edu.agh.to.przychodnia.Doctor.Doctor;
 import pl.edu.agh.to.przychodnia.Doctor.DoctorRepository;
 import pl.edu.agh.to.przychodnia.Doctor.GetDoctorDTO;
@@ -24,6 +26,7 @@ public class ScheduleService {
     private ScheduleRepository scheduleRepository;
     private DoctorRepository doctorRepository;
     private RoomRepository roomRepository;
+    private AppointmentRepository appointmentRepository;
 
     /**
      * Konstruktor serwisu wstrzykujący potrzebne repozytoria.
@@ -32,10 +35,14 @@ public class ScheduleService {
      * @param doctorRepository   repozytorium lekarzy
      * @param roomRepository     repozytorium gabinetów
      */
-    public ScheduleService(ScheduleRepository scheduleRepository, DoctorRepository doctorRepository, RoomRepository roomRepository) {
+    public ScheduleService(ScheduleRepository scheduleRepository,
+                           DoctorRepository doctorRepository,
+                           RoomRepository roomRepository,
+                           AppointmentRepository appointmentRepository) {
         this.scheduleRepository = scheduleRepository;
         this.doctorRepository = doctorRepository;
         this.roomRepository = roomRepository;
+        this.appointmentRepository = appointmentRepository;
     }
 
     /**
@@ -60,7 +67,7 @@ public class ScheduleService {
                 doctor,
                 room,
                 dto.getStartDate(),
-                dto.getStartDate());
+                dto.getEndDate());
         return mapDTO(scheduleRepository.save(schedule));
     }
 
@@ -102,9 +109,15 @@ public class ScheduleService {
      */
     public Boolean deleteSchedule(int id) {
         if(scheduleRepository.existsById(id)) {
+            for(Appointment appointment : appointmentRepository.findAll()){
+                if(appointment.getSchedule().getId() == id){
+                    appointmentRepository.delete(appointment);
+                }
+            }
             scheduleRepository.deleteById(id);
             return true;
         }
+
         return false;
     }
 

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import pl.edu.agh.to.przychodnia.Patient.Patient;
 import pl.edu.agh.to.przychodnia.Schedule.Schedule;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -21,26 +23,37 @@ public class Appointment {
     private Schedule schedule;
 
     @Column
-    private Date appointmentStart;
+    private LocalDateTime appointmentStart;
 
     @Column
-    private Date appointmentEnd;
+    private LocalDateTime appointmentEnd;
 
     public Appointment() {}
 
-    public Appointment(Patient patient, Schedule schedule, Date appointmentStart, Date appointmentEnd) {
+    public Appointment(Patient patient, Schedule schedule, LocalDateTime appointmentStart, LocalDateTime appointmentEnd) {
         this.patient = patient;
         this.schedule = schedule;
         this.appointmentStart = appointmentStart;
         this.appointmentEnd = appointmentEnd;
     }
 
-    public Date getAppointmentEnd() {
+    public LocalDateTime getAppointmentEnd() {
         return appointmentEnd;
     }
 
-    public Date getAppointmentStart() {
+    public LocalDateTime getAppointmentStart() {
         return appointmentStart;
+    }
+
+    public Schedule getSchedule() {
+        return schedule;
+    }
+    public int getId() {
+        return id;
+    }
+
+    public Patient getPatient() {
+        return patient;
     }
 
     @Override

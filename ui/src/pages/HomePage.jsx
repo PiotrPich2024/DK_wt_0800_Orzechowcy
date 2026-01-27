@@ -10,6 +10,7 @@ const HomePage = () => {
                 <Link to="/rooms"> Strona gabinetów </Link>
                 <Link to="/patients"> Strona pacjentów </Link>
                 <Link to="/schedules"> Strona dyżurów </Link>
+                <Link to="/appointment"> Strona spotkań</Link>
             </div>
         </div>
     );

@@ -2,6 +2,33 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
 import api from "../services/api.js";
 
+const parseDate = (value) => {
+    if (!value) return null;
+    if (Array.isArray(value)) {
+        return new Date(value[0], value[1] - 1, value[2], value[3] || 0, value[4] || 0);
+    }
+    return new Date(value);
+};
+
+const formatDateForDisplay = (value) => {
+    const date = parseDate(value);
+    if (!date || isNaN(date.getTime())) return "";
+    return date.toLocaleString('pl-PL', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+};
+
+const toDateTimeLocal = (value) => {
+  const date = parseDate(value);
+  if (!date || isNaN(date.getTime())) return "";
+
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
 const SchedulePage = () => {
   const [scheduleList, setScheduleList] = useState([]); // zapisane dyżury
   const [availableSlots, setAvailableSlots] = useState([]); // dostępne sloty
@@ -35,7 +62,28 @@ const SchedulePage = () => {
     showSchedules();
   }, []);
 
-  const formatDateTime = (value) => (value ? value : null);
+  const deleteSchedule = async (id) => {
+  if (!window.confirm("Czy na pewno chcesz usunąć ten dyżur?")) {
+    return;
+  }
+
+  try {
+    await api.get(`/schedule/delete/${id}`);
+    alert("Dyżur usunięty");
+    showSchedules(); // odśwież listę
+  } catch (error) {
+    console.error("Błąd usuwania dyżuru:", error);
+    alert("Nie udało się usunąć dyżuru");
+  }
+};
+
+  const formatDateTime = (value) => {
+      // If value is a date string from input (YYYY-MM-DDTHH:mm), return it as is or handle appropriately.
+      // Backend expects ISO-like structure if it maps to LocalDateTime.
+      // Usually standard ISO string creates array on backend if using Jackson without extra config.
+      // But let's assume raw string from input works if it worked before or just needs minor check.
+      return value ? value : null;
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -85,8 +133,8 @@ const SchedulePage = () => {
     setFormData({
       doctorId: slot.doctorId,
       roomId: slot.roomId,
-      startDate: slot.startDate,
-      endDate: slot.endDate,
+      startDate: toDateTimeLocal(slot.startDate),
+      endDate: toDateTimeLocal(slot.endDate),
     });
   };
 
@@ -108,34 +156,45 @@ const SchedulePage = () => {
         {scheduleList.length > 0 && (
           <div style={{ width: "80%" }}>
             <h2>Lista dyżurów</h2>
-            {scheduleList.map((s, idx) => (
-              <div
-                key={idx}
-                style={{
-                  border: "1px solid #ccc",
-                  padding: "10px",
-                  marginBottom: "10px",
-                  borderRadius: "6px",
-                  backgroundColor: "#f9f9f9",
-                }}
-              >
-                <p>
-                  <strong>Lekarz:</strong> {s.doctorsFullName}
-                </p>
-                <p>
-                  <strong>Specjalizacja:</strong> {s.specialization}
-                </p>
-                <p>
-                  <strong>Gabinet:</strong> {s.roomNumber}
-                </p>
-                <p>
-                  <strong>Start:</strong> {s.startDate}
-                </p>
-                <p>
-                  <strong>Koniec:</strong> {s.endDate}
-                </p>
-              </div>
-            ))}
+            {scheduleList.map((s) => (
+                <div
+                  key={s.id}
+                  style={{
+                    border: "1px solid #ccc",
+                    padding: "10px",
+                    marginBottom: "10px",
+                    borderRadius: "6px",
+                    backgroundColor: "#f9f9f9",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                  }}
+                >
+                  <div>
+                    <p><strong>Lekarz:</strong> {s.doctorsFullName}</p>
+                    <p><strong>Specjalizacja:</strong> {s.specialization}</p>
+                    <p><strong>Gabinet:</strong> {s.roomNumber}</p>
+                    <p>
+                      <strong>Termin:</strong>{" "}
+                      {formatDateForDisplay(s.startDate)} – {formatDateForDisplay(s.endDate)}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => deleteSchedule(s.id)}
+                    style={{
+                      backgroundColor: "#dc3545",
+                      color: "white",
+                      border: "none",
+                      padding: "8px 12px",
+                      borderRadius: "4px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Usuń
+                  </button>
+                </div>
+              ))}
           </div>
         )}
 
@@ -232,22 +291,28 @@ const SchedulePage = () => {
               <div
                 key={idx}
                 style={{
-                  padding: "8px",
-                  borderBottom: "1px solid #eee",
+                  padding: "15px",
+                  borderBottom: "1px solid #ddd",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
+                  backgroundColor: "#fff",
+                  borderRadius: "5px",
+                  marginBottom: "5px",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
                 }}
               >
                 <div>
-                  {slot.doctorName} | {slot.specialization} | gab.{" "}
-                  {slot.roomNumber}
-                  <br />
-                  {slot.startDate} → {slot.endDate}
+                  <div style={{fontWeight: "bold", fontSize: "1.1em"}}>{slot.doctorName} ({slot.specialization})</div>
+                  <div>ID Lekarza: {slot.doctorId}</div>
+                  <div>Gabinet: {slot.roomNumber} (ID: {slot.roomId})</div>
+                  <div style={{marginTop: "5px", color: "#555"}}>
+                      {formatDateForDisplay(slot.startDate)} — {formatDateForDisplay(slot.endDate)}
+                  </div>
                 </div>
                 <button
                   onClick={() => selectSlot(slot)}
-                  style={{ marginLeft: "10px" }}
+                  style={{ marginLeft: "10px", padding: "8px 16px", cursor: "pointer", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "4px" }}
                 >
                   Wybierz
                 </button>

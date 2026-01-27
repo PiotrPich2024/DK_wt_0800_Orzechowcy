@@ -1,6 +1,8 @@
 package pl.edu.agh.to.przychodnia.Patient;
 
 import org.springframework.stereotype.Service;
+import pl.edu.agh.to.przychodnia.Appointment.Appointment;
+import pl.edu.agh.to.przychodnia.Appointment.AppointmentRepository;
 import pl.edu.agh.to.przychodnia.Schedule.Schedule;
 
 import java.util.ArrayList;
@@ -14,14 +16,19 @@ import java.util.Optional;
 @Service
 public class PatientService {
     private final PatientRepository patientRepository;
+    private final AppointmentRepository appointmentRepository;
 
     /**
      * Konstruktor serwisu wstrzykujący repozytorium pacjentów.
      *
      * @param patientRepository repozytorium pacjentów
      */
-    public PatientService(PatientRepository patientRepository) {
+    public PatientService(
+            PatientRepository patientRepository,
+            AppointmentRepository appointmentRepository
+    ) {
         this.patientRepository = patientRepository;
+        this.appointmentRepository = appointmentRepository;
     }
 
     /**
@@ -60,6 +67,11 @@ public class PatientService {
      */
     public Boolean deletePatient(int id){
         if(patientRepository.existsById(id)){
+            for (Appointment appointment : appointmentRepository.findAll()){
+                if(appointment.getPatient().getId() == id){
+                    appointmentRepository.delete(appointment);
+                }
+            }
             patientRepository.deleteById(id);
             return true;
         }
