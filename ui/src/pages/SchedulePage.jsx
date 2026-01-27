@@ -62,6 +62,21 @@ const SchedulePage = () => {
     showSchedules();
   }, []);
 
+  const deleteSchedule = async (id) => {
+  if (!window.confirm("Czy na pewno chcesz usunąć ten dyżur?")) {
+    return;
+  }
+
+  try {
+    await api.get(`/schedule/delete/${id}`);
+    alert("Dyżur usunięty");
+    showSchedules(); // odśwież listę
+  } catch (error) {
+    console.error("Błąd usuwania dyżuru:", error);
+    alert("Nie udało się usunąć dyżuru");
+  }
+};
+
   const formatDateTime = (value) => {
       // If value is a date string from input (YYYY-MM-DDTHH:mm), return it as is or handle appropriately.
       // Backend expects ISO-like structure if it maps to LocalDateTime.
@@ -141,31 +156,45 @@ const SchedulePage = () => {
         {scheduleList.length > 0 && (
           <div style={{ width: "80%" }}>
             <h2>Lista dyżurów</h2>
-            {scheduleList.map((s, idx) => (
-              <div
-                key={idx}
-                style={{
-                  border: "1px solid #ccc",
-                  padding: "10px",
-                  marginBottom: "10px",
-                  borderRadius: "6px",
-                  backgroundColor: "#f9f9f9",
-                }}
-              >
-                <p>
-                  <strong>Lekarz:</strong> {s.doctorsFullName}
-                </p>
-                <p>
-                  <strong>Specjalizacja:</strong> {s.specialization}
-                </p>
-                <p>
-                  <strong>Gabinet:</strong> {s.roomNumber}
-                </p>
-                <p>
-                  <strong>Termin:</strong> {formatDateForDisplay(s.startDate)} - {formatDateForDisplay(s.endDate)}
-                </p>
-              </div>
-            ))}
+            {scheduleList.map((s) => (
+                <div
+                  key={s.id}
+                  style={{
+                    border: "1px solid #ccc",
+                    padding: "10px",
+                    marginBottom: "10px",
+                    borderRadius: "6px",
+                    backgroundColor: "#f9f9f9",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                  }}
+                >
+                  <div>
+                    <p><strong>Lekarz:</strong> {s.doctorsFullName}</p>
+                    <p><strong>Specjalizacja:</strong> {s.specialization}</p>
+                    <p><strong>Gabinet:</strong> {s.roomNumber}</p>
+                    <p>
+                      <strong>Termin:</strong>{" "}
+                      {formatDateForDisplay(s.startDate)} – {formatDateForDisplay(s.endDate)}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => deleteSchedule(s.id)}
+                    style={{
+                      backgroundColor: "#dc3545",
+                      color: "white",
+                      border: "none",
+                      padding: "8px 12px",
+                      borderRadius: "4px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Usuń
+                  </button>
+                </div>
+              ))}
           </div>
         )}
 

@@ -3,6 +3,7 @@ package pl.edu.agh.to.przychodnia.Appointment;
 import org.springframework.stereotype.Service;
 import pl.edu.agh.to.przychodnia.Doctor.Doctor;
 import pl.edu.agh.to.przychodnia.Doctor.DoctorService;
+import pl.edu.agh.to.przychodnia.Doctor.Specialization;
 import pl.edu.agh.to.przychodnia.Patient.Patient;
 import pl.edu.agh.to.przychodnia.Patient.PatientRepository;
 import pl.edu.agh.to.przychodnia.Patient.PatientService;
@@ -134,52 +135,65 @@ public class AppointmentService {
      * <p>
      * Appointments are divided into 15-minute slots.
      *
-     * @param doctorID identifier of the doctor
+     * @param doctorSpecialization specialization of doctor
      * @param date starting date for searching available slots
      * @return list of available doctor appointment slots
      */
-    public List<DoctorsAppointmentsDTO> getFreeDoctorAppointments(int doctorID, LocalDateTime date) {
+    public List<DoctorsAppointmentsDTO> getFreeDoctorAppointments(
+            String doctorSpecialization,
+            LocalDateTime date
+    ) {
 
-        List<DoctorsAppointmentsDTO> doctorsFreeAppointments = new ArrayList<>();
-        List<Appointment> doctorsTakenAppointments = new ArrayList<>();
-        for (Appointment appointment : appointmentRepository.findAll()) {
-            if (appointment.getSchedule().getDoctorId() == doctorID) {
-                doctorsTakenAppointments.add(appointment);
-            }
-        }
+        Specialization specialization = Specialization.fromString(doctorSpecialization);
 
-        for (Schedule schedule : scheduleRepository.findAll()) {
-            // pomijamy dyżury które są tydzień
-            if(schedule.getStartdate().isAfter(date.plusDays(7))){
+        List<DoctorsAppointmentsDTO> freeAppointments = new ArrayList<>();
+
+        List<Appointment> allAppointments = appointmentRepository.findAll();
+        List<Schedule> allSchedules = scheduleRepository.findAll();
+
+        for (Schedule schedule : allSchedules) {
+
+            if (schedule.getDoctor().getSpecialization() != specialization) {
                 continue;
             }
-            if (schedule.getDoctor().getId() == doctorID) {
-                LocalDateTime startDate =  schedule.getStartdate();
-                LocalDateTime endDate =  schedule.getEnddate();
-                while (startDate.isBefore(endDate)) {
-                    Boolean flag = true;
-                    for (Appointment appointment : doctorsTakenAppointments) {
-                        if (appointment.getAppointmentStart().isEqual(startDate)){
-                            flag = false;
-                            break;
-                        }
+
+            if (schedule.getStartdate().isAfter(date.plusDays(7))) {
+                continue;
+            }
+
+            LocalDateTime slotStart = schedule.getStartdate();
+            LocalDateTime slotEnd = schedule.getEnddate();
+
+            while (slotStart.isBefore(slotEnd)) {
+
+                boolean isFree = true;
+
+                for (Appointment appointment : allAppointments) {
+                    if (
+                            appointment.getSchedule().getId() == schedule.getId() &&
+                                    appointment.getAppointmentStart().isEqual(slotStart)
+                    ) {
+                        isFree = false;
+                        break;
                     }
-                    if (flag) {
-                        doctorsFreeAppointments.add(new DoctorsAppointmentsDTO(
-                                schedule.getId(),
-                                schedule.getDoctor().getFirstName(),
-                                schedule.getDoctor().getLastName(),
-                                schedule.getDoctor().getSpecialization().toString(),
-                                schedule.getRoom().getRoomNumber(),
-                                startDate
-                        ));
-                    }
-                    startDate = startDate.plusMinutes(15);
                 }
+
+                if (isFree) {
+                    freeAppointments.add(new DoctorsAppointmentsDTO(
+                            schedule.getId(),
+                            schedule.getDoctor().getFirstName(),
+                            schedule.getDoctor().getLastName(),
+                            schedule.getDoctor().getSpecialization().toString(),
+                            schedule.getRoom().getRoomNumber(),
+                            slotStart
+                    ));
+                }
+
+                slotStart = slotStart.plusMinutes(15);
             }
         }
 
-        return doctorsFreeAppointments;
+        return freeAppointments;
     }
 
 }

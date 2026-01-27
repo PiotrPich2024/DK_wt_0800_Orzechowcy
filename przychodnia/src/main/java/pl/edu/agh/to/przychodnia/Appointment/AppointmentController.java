@@ -63,10 +63,10 @@ public class AppointmentController {
     @GetMapping("/{doctorID}/{date}")
     public List<DoctorsAppointmentsDTO> getFreeDoctorAppointments(
             @Parameter(
-                    description = "ID lekarza",
-                    example = "1"
+                    description = "specjalizacja lekarza",
+                    example = "Kardiolog"
             )
-            @PathVariable("doctorID") int doctorID,
+            @PathVariable("doctorID") String doctorSpecialization,
 
             @Parameter(
                     description = "Data wizyty (ISO-8601)",
@@ -74,7 +74,7 @@ public class AppointmentController {
             )
             @PathVariable("date") LocalDateTime date
     ) {
-        return appointmentService.getFreeDoctorAppointments(doctorID, date);
+        return appointmentService.getFreeDoctorAppointments(doctorSpecialization, date);
     }
 
     @Operation(

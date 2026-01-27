@@ -64,10 +64,10 @@ public class DoctorsAppointmentsDTO {
     public void setRoomNumber(int roomNumber) {
         this.roomNumber = roomNumber;
     }
-    public LocalDateTime getAppointmentDate() {
+    public LocalDateTime getAppointmentStartDate() {
         return appointmentStartDate;
     }
-    public void setAppointmentDate(LocalDateTime appointmentDate) {
+    public void setAppointmentStartDate(LocalDateTime appointmentDate) {
         this.appointmentStartDate = appointmentDate;
     }
     public LocalDateTime getAppointmentEndDate() {
