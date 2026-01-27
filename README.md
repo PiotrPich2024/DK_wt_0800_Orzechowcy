@@ -73,7 +73,7 @@ Strona posiada listę pacjentów oraz formsa do dodawania pacjentów. Z listy pa
 
 Lista dyżurów doktorów z możliwością kasowania oraz forms z sprawdzaniem dostępnych lekarzy do dodania dyżuru.
 
-![alt text](readmeImages/schedulePage.png)![alt text](image.png)
+![alt text](readmeImages/schedulePage.png)!
 
 ### Strona Wizyt
 
